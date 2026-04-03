@@ -1,0 +1,54 @@
+version: 1
+
+task:
+  id: ""
+  slug: ""
+  title: ""
+  description: ""
+  created_at: ""
+  updated_at: ""
+  assignee: ""
+  source: "manual"            # manual | jira:<KEY> | linear:<KEY> | github:<NUM>
+  tags: []
+
+# Workflow status
+# Valid: discovery | spec | codebase-research | external-research |
+#        architecture | planning | phase-execution | completed | blocked | abandoned
+status: "discovery"
+
+# Phase execution tracking
+current_phase: 0
+current_step: "discussion"    # discussion | planning | implementation | verification
+
+# Services involved in this task
+services: []
+  # - name: "service-name"
+  #   repo: "git@github.com:team/service-name.git"
+  #   branch: "feature/<task-slug>"
+  #   status: "pending"       # pending | in-progress | completed | blocked
+
+# Implementation phases (populated during planning)
+phases: []
+  # - id: 1
+  #   name: "Phase name"
+  #   status: "pending"       # pending | in-progress | completed | failed | skipped
+  #   service: "service-name"
+  #   started_at: null
+  #   completed_at: null
+  #   verification:
+  #     phpunit: null          # null | pass | fail
+  #     phpstan: null
+  #     pint: null
+  #     review: null           # null | approved | changes-requested
+
+# Blockers
+blockers: []
+  # - description: "Waiting for DBA approval"
+  #   created_at: ""
+  #   resolved_at: null
+
+# Session history
+session_log: []
+  # - session: "2026-04-03-session-1"
+  #   phases_worked: [1]
+  #   duration_minutes: 0

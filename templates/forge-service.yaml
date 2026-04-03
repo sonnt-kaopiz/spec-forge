@@ -1,0 +1,22 @@
+# forge.yaml — place this in your service repo root
+# This connects the service to the central spec-forge repo
+
+# Path to the central spec-forge repo (absolute)
+spec_forge_path: "/path/to/spec-forge"
+
+# Service identity
+service_name: "my-service"
+framework: "laravel"    # or "yii2"
+php_version: "8.2"
+
+# Override verification commands (optional — defaults come from central forge.yaml)
+# verification:
+#   phpstan:
+#     level: 9
+#     paths: ["app/", "domain/"]
+#   phpunit:
+#     command: "php artisan test --parallel"
+
+# Override paths (optional — for non-standard directory structures)
+# paths:
+#   services: "app/Domain/Services"

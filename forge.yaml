@@ -1,0 +1,64 @@
+version: 1
+
+# Task ID prefix
+task_prefix: "SF"
+
+# Framework configurations
+frameworks:
+  laravel:
+    version: "11"
+    paths:
+      models: "app/Models"
+      services: "app/Services"
+      controllers: "app/Http/Controllers"
+      migrations: "database/migrations"
+      tests_unit: "tests/Unit"
+      tests_feature: "tests/Feature"
+    verification:
+      phpunit:
+        command: "php artisan test"
+        filter_flag: "--filter"
+      phpstan:
+        command: "vendor/bin/phpstan analyse"
+        level: 8
+      pint:
+        command: "vendor/bin/pint"
+
+  yii2:
+    version: "2.0"
+    paths:
+      models: "common/models"
+      services: "common/services"
+      controllers_frontend: "frontend/controllers"
+      controllers_backend: "backend/controllers"
+      migrations: "console/migrations"
+      tests_unit: "tests/unit"
+      tests_feature: "tests/functional"
+    verification:
+      phpunit:
+        command: "vendor/bin/phpunit"
+        filter_flag: "--filter"
+      phpstan:
+        command: "vendor/bin/phpstan analyse"
+        level: 6
+      pint:
+        command: "vendor/bin/php-cs-fixer fix"
+
+# Verification defaults
+verification:
+  require_phpunit: true
+  require_phpstan: true
+  require_pint: true
+  require_agent_review: true
+  require_developer_approval: true
+
+# Phase execution
+phase_execution:
+  max_retries_on_verification_failure: 3
+  auto_fix_style: true
+
+# Agent configuration
+agents:
+  codebase_researcher_count: 2
+  architect_model: "opus"
+  reviewer_count: 2
