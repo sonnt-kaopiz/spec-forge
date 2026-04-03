@@ -1,45 +1,47 @@
-# Spec-Forge Plugin
+# Spec-Forge — Development Guide
 
-This project uses spec-forge for spec-driven development in PHP microservices (Laravel & Yii2).
+Spec-forge is a Claude Code plugin that orchestrates spec-driven development for PHP microservices (Laravel & Yii2). This file guides agents working on building the plugin itself.
 
-## Core Rules
+## Project Structure
 
-- Tasks follow a strict workflow: spec -> research -> architecture -> planning -> phased execution
-- **Never skip phases. Never proceed without developer approval at gates.**
-- State is persisted in `state.yaml` — this is the single source of truth
-- All task documentation lives in `tasks/<task-id>/`
-- Only the orchestrating command modifies state.yaml — agents never write state directly
+```
+.claude-plugin/plugin.json  — Plugin manifest (name, version, metadata)
+forge.yaml                  — Central config: framework paths, verification commands, agent settings
+AGENTS.md                   — Agent coordination rules (read by Claude Code automatically)
+templates/
+  state.yaml                — Template for per-task state tracking
+  forge-service.yaml        — Template users place in their service repos
+commands/forge/             — Slash command definitions (/forge new, /forge resume, etc.)
+skills/                     — Skill definitions (codebase-research, spec-generation, etc.)
+agents/                     — Agent definitions (codebase-researcher, spec-writer, etc.)
+hooks/                      — Hook definitions (session-start, etc.)
+scripts/                    — Shell scripts (verification pipeline, state management)
+tasks/                      — Implementation task specs and TODO tracker
+```
 
-## Workflow Phases
+## Build Progress
 
-1. **Discovery** — understand the requirement
-2. **Spec** — generate/validate specification (approval gate)
-3. **Codebase Research** — analyze existing code patterns
-4. **External Research** — research docs, packages, best practices
-5. **Architecture** — design the solution (approval gate)
-6. **Planning** — break into phases (approval gate)
-7. **Phase Execution** — loop: discuss -> plan -> implement -> verify (approval gate per phase)
+See `tasks/TODO.md` for the full task list, dependency graph, and recommended build order. Tasks 01-04 (scaffold, CLAUDE.md, forge.yaml, state schema) are done. Everything else is pending.
 
-## Verification Pipeline
+## How Plugin Components Work
 
-Every implementation phase must pass: phpunit -> phpstan -> pint -> agent code review -> developer approval
+- **Commands** (`commands/<name>/`): Slash commands users invoke. Each needs a prompt markdown file. Commands orchestrate the workflow by calling skills/agents and updating state.
+- **Skills** (`skills/<name>/`): Reusable prompt-based capabilities. Each skill wraps an agent or a sequence of tool calls. Skills do NOT modify `state.yaml` directly.
+- **Agents** (`agents/<name>/`): Subagent definitions with specific models and tool access. See `AGENTS.md` for the full roster and their responsibilities.
+- **Hooks** (`hooks/`): Triggered automatically on events (e.g., session start). Used for context reconstruction.
+- **Scripts** (`scripts/`): Shell scripts for verification pipeline, task initialization, state file manipulation.
 
-## Key Commands
+## Key Design Rules
 
-- `/forge new <name>` — start a new task
-- `/forge resume [task-id]` — resume from saved state
-- `/forge status [task-id]` — display task dashboard
-- `/forge next` — advance to next phase
-- `/forge verify` — run verification pipeline
-- `/forge spec` — generate/edit specification
-- `/forge research` — run external research
-- `/forge review` — run code review
-- `/forge plan` — view/regenerate plan
+- `state.yaml` is the single source of truth for task progress. Only orchestrating commands (in `commands/`) modify it — agents and skills never write state directly.
+- `forge.yaml` holds global config (framework paths, verification commands, agent counts). Service repos have their own `forge-service.yaml` that can override settings.
+- `templates/state.yaml` is a template, not live state. Live state files are created per-task in service repos.
+- All agent output is structured markdown. Agents return data; commands decide what to do with it.
 
-## Service Repo Integration
+## Development Conventions
 
-When working in a service repo, check `forge.yaml` in the repo root for:
-- `spec_forge_path` — path to the central spec-forge repo
-- `service_name` — which service this repo represents
-- `framework` — laravel or yii2
-- Verification command overrides
+- Task specs in `tasks/` describe what to build and acceptance criteria. Read the relevant task spec before implementing.
+- Follow the Claude Code plugin format: each command/skill/agent lives in its own subdirectory with a markdown prompt file.
+- Keep prompts self-contained — each prompt file should include all context the agent/skill needs without depending on CLAUDE.md being loaded.
+- When writing shell scripts, target bash with POSIX-compatible fallbacks. Scripts must work on macOS and Linux.
+- Test commands manually by installing the plugin locally and running the slash commands.
