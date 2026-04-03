@@ -5,18 +5,32 @@ Spec-forge is a Claude Code plugin that orchestrates spec-driven development for
 ## Project Structure
 
 ```
-.claude-plugin/plugin.json  — Plugin manifest (name, version, metadata)
-forge.yaml                  — Central config: framework paths, verification commands, agent settings
-AGENTS.md                   — Agent coordination rules (read by Claude Code automatically)
-templates/
-  state.yaml                — Template for per-task state tracking
-  forge-service.yaml        — Template users place in their service repos
-commands/forge/             — Slash command definitions (/forge new, /forge resume, etc.)
-skills/                     — Skill definitions (codebase-research, spec-generation, etc.)
-agents/                     — Agent definitions (codebase-researcher, spec-writer, etc.)
-hooks/                      — Hook definitions (session-start, etc.)
-scripts/                    — Shell scripts (verification pipeline, state management)
-tasks/                      — Implementation task specs and TODO tracker
+spec-forge/
+├── .claude-plugin/
+│   └── plugin.json .............. Plugin manifest (name, version, metadata)
+├── forge.yaml ................... Central config: frameworks, verification, agents
+├── CLAUDE.md .................... This file — development guide
+├── AGENTS.md .................... Agent coordination rules (auto-loaded by Claude Code)
+│
+├── commands/
+│   └── forge/ ................... Slash commands (/forge new, /forge resume, etc.)
+│
+├── skills/
+│   ├── codebase-research/ ....... Analyze existing service code patterns
+│   ├── spec-generation/ ......... Generate/validate specifications
+│   ├── external-research/ ....... Research docs, packages, best practices
+│   ├── verification/ ............ Run phpunit/phpstan/pint pipeline
+│   └── context-reconstruction/ .. Rebuild task context on session resume
+│
+├── agents/ ...................... Subagent definitions (see AGENTS.md)
+├── hooks/ ....................... Event-triggered actions (e.g., session start)
+├── scripts/ ..................... Shell scripts (verification, state management)
+│
+├── templates/
+│   ├── state.yaml ............... Template for per-task state tracking
+│   └── forge-service.yaml ....... Template users place in service repo roots
+│
+└── tasks/ ....................... Implementation task specs and TODO tracker
 ```
 
 ## Build Progress
