@@ -12,7 +12,7 @@
 | 01 | [Plugin scaffold](01-plugin-scaffold.md) | Critical | — | [x] |
 | 02 | [CLAUDE.md & AGENTS.md](02-claude-md-agents-md.md) | Critical | 01 | [x] |
 | 03 | [forge.yaml config](03-forge-yaml-config.md) | Critical | 01 | [x] |
-| 03.1 | [Built-in stack profiles](03.1-stack-profiles.md) | High | 03 | [ ] |
+| 03.1 | [Built-in stack profiles](03.1-stack-profiles.md) | High | 03 | [x] |
 | 04 | [State schema (templates/state.yaml)](04-state-schema.md) | Critical | 01 | [x] |
 | 04.1 | [Agent: codebase-mapper](04.1-agent-codebase-mapper.md) | High | 01 | [x] |
 | 04.2 | [Command: forge:map-codebase](04.2-command-forge-map-codebase.md) | High | 04.1 | [ ] |

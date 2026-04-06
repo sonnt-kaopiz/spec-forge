@@ -4,7 +4,34 @@ version: 2
 task_prefix: "SF"
 
 # Stack profiles — define language, framework, paths, and verification commands.
-# Users may add custom profiles here or in their service's forge-service.yaml.
+#
+# HOW TO ADD A CUSTOM PROFILE
+# ─────────────────────────────────────────────────────────────────────────────
+# Option A — Global profile (available to all services):
+#   Copy any profile block below, rename the top-level key, and edit the fields.
+#   Example:
+#     my-nestjs:
+#       language: "javascript"
+#       framework: "nestjs"
+#       ...
+#
+# Option B — Service-local profile (one service only):
+#   Add a `stacks:` section to that service's forge-service.yaml using the same
+#   structure. Service-local profiles take precedence over global ones.
+#
+# REQUIRED KEYS (per profile)
+#   language, framework, version, manifest
+#   paths.models, paths.services, paths.controllers,
+#   paths.migrations, paths.tests_unit, paths.tests_feature
+#   verification.test.command
+#   verification.analyze.command
+#   verification.format.command
+#
+# OPTIONAL KEYS
+#   verification.test.filter_flag   — flag used to run a single test by name
+#   verification.*.config           — tool-specific config overrides (any step)
+#   paths.*                         — additional profile-specific path keys
+# ─────────────────────────────────────────────────────────────────────────────
 stacks:
   laravel:
     language: "php"
@@ -37,6 +64,7 @@ stacks:
     paths:
       models: "common/models"
       services: "common/services"
+      controllers: "api/controllers"
       controllers_frontend: "frontend/controllers"
       controllers_backend: "backend/controllers"
       migrations: "console/migrations"
@@ -68,7 +96,7 @@ stacks:
     verification:
       test:
         command: "bundle exec rails test"
-        filter_flag: "--name"
+        filter_flag: "-n"
       analyze:
         command: "bundle exec rubocop --format json"
       format:
