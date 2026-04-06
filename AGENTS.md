@@ -16,12 +16,12 @@ Spec-forge uses specialized agents for different workflow phases. All agents out
 
 ### external-researcher (yellow, sonnet)
 - Single instance
-- Researches Laravel/Yii2 official docs, Composer packages, and reference implementations
+- Researches official docs, package registries, and reference implementations for the target stack
 - Returns actionable research with source URLs
 
 ### solution-architect (green, opus)
 - Single instance — highest-cost, highest-leverage agent
-- Designs solution architecture with PHP interfaces, database changes, API contracts
+- Designs solution architecture with interfaces, database changes, and API contracts
 - Makes decisive choices: picks one approach and commits to it
 - Receives: spec.md + research.md + external-research.md
 

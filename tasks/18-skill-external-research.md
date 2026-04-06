@@ -7,25 +7,24 @@
 
 ## Description
 
-Create the external research skill for Laravel/Yii2 documentation and best practices research.
+Create the external research skill for documentation and best practices research for the target stack.
 
 ## Deliverables
 
 - [ ] `skills/external-research/SKILL.md`
-- [ ] `skills/external-research/references/laravel-patterns.md` — common Laravel patterns to look for
-- [ ] `skills/external-research/references/yii2-patterns.md` — common Yii2 patterns to look for
 
 ## Specification
 
 ```yaml
 name: external-research
 description: >
-  Researches external documentation, packages, and best practices for PHP/Laravel/Yii2.
-  Use when "research best practices", "find packages", "check Laravel docs",
+  Researches external documentation, packages, and best practices for the target stack.
+  Use when "research best practices", "find packages", "check docs",
   "research how to implement", or at external-research phase of a spec-forge task.
 ```
 
 **Behavior**:
-- Invoke external-researcher agent with task context
-- Guide search toward: official docs, Packagist packages, reference implementations
+- Read the service's stack identity (language, framework) from context or state.yaml
+- Invoke external-researcher agent with task context and stack information
+- Guide search toward: official framework/language docs, relevant package registries, reference implementations
 - Output structured external-research.md

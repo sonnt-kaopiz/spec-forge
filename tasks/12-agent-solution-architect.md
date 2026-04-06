@@ -24,7 +24,7 @@ color: green
 
 **Responsibilities**:
 - Design solution architecture that fits existing codebase patterns
-- Specify component interfaces (PHP interfaces, class signatures)
+- Specify component interfaces/type signatures appropriate to the target language
 - Design database schema changes and migration strategy
 - Define API contracts for cross-service communication
 - Produce concrete file-level implementation map
@@ -36,4 +36,4 @@ color: green
 
 - Only agent using Opus model — architecture decisions are high-leverage
 - Must receive spec.md + research.md + external-research.md as input
-- Should produce PHP interface definitions, not just descriptions
+- Should produce concrete interface/type definitions, not just descriptions

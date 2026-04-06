@@ -1,10 +1,10 @@
 {
   "name": "spec-forge",
   "version": "1.0.0",
-  "description": "Spec-driven development workflow for PHP microservices. Manages multi-phase tasks with persistent state, cross-service coordination, and structured verification pipelines for Laravel and Yii2 projects.",
+  "description": "Spec-driven development workflow for microservices. Manages multi-phase tasks with persistent state, cross-service coordination, and structured verification pipelines. Supports any language or framework via configurable stack profiles.",
   "author": {
     "name": "sonnt"
   },
   "license": "MIT",
-  "keywords": ["php", "laravel", "yii2", "spec-driven", "workflow", "microservices"]
+  "keywords": ["spec-driven", "workflow", "microservices", "multi-language", "agents", "verification"]
 }

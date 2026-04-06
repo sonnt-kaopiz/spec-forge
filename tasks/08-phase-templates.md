@@ -17,7 +17,7 @@ Create the markdown templates for per-phase documentation files.
 - [ ] `templates/phase-plan.md` — PLAN.md template:
   - Numbered steps with file paths, Verification Plan (what to test/check)
 - [ ] `templates/phase-verification.md` — VERIFICATION.md template:
-  - PHPUnit (status, command, results), PHPStan (status, level, errors), Pint (status, auto-fixes), Agent Code Review (status, findings), Developer Approval (status, notes)
+  - Test (status, command, results), Analyze (status, config, errors), Format (status, auto-fixes), Agent Code Review (status, findings), Developer Approval (status, notes)
 - [ ] `templates/phase-result.md` — RESULT.md template:
   - Completed items, Files Modified with line references, Deferred Items, Impact on Next Phase
 

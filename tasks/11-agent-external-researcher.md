@@ -7,7 +7,7 @@
 
 ## Description
 
-Create the external researcher agent that researches Laravel/Yii2 docs, packages, and best practices.
+Create the external researcher agent that researches official docs, packages, and best practices for the target stack.
 
 ## Deliverables
 
@@ -23,8 +23,9 @@ color: yellow
 ```
 
 **Responsibilities**:
-- Search Laravel/Yii2 official documentation for relevant patterns
-- Evaluate Composer packages on Packagist
+- Read the service's stack identity (language, framework) from context
+- Search official documentation for the target framework/language
+- Evaluate relevant packages from the appropriate registry (Packagist, RubyGems, PyPI, npm, Maven Central, crates.io, etc.)
 - Find similar open-source implementations
 - Research best practices for the specific technical challenge
 - Return structured research with source URLs

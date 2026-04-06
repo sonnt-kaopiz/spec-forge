@@ -1,12 +1,16 @@
-version: 1
+version: 2
 
 # Task ID prefix
 task_prefix: "SF"
 
-# Framework configurations
-frameworks:
+# Stack profiles — define language, framework, paths, and verification commands.
+# Users may add custom profiles here or in their service's forge-service.yaml.
+stacks:
   laravel:
+    language: "php"
+    framework: "laravel"
     version: "11"
+    manifest: "composer.json"
     paths:
       models: "app/Models"
       services: "app/Services"
@@ -15,17 +19,21 @@ frameworks:
       tests_unit: "tests/Unit"
       tests_feature: "tests/Feature"
     verification:
-      phpunit:
+      test:
         command: "php artisan test"
         filter_flag: "--filter"
-      phpstan:
+      analyze:
         command: "vendor/bin/phpstan analyse"
-        level: 8
-      pint:
+        config:
+          level: 8
+      format:
         command: "vendor/bin/pint"
 
   yii2:
+    language: "php"
+    framework: "yii2"
     version: "2.0"
+    manifest: "composer.json"
     paths:
       models: "common/models"
       services: "common/services"
@@ -35,27 +43,133 @@ frameworks:
       tests_unit: "tests/unit"
       tests_feature: "tests/functional"
     verification:
-      phpunit:
+      test:
         command: "vendor/bin/phpunit"
         filter_flag: "--filter"
-      phpstan:
+      analyze:
         command: "vendor/bin/phpstan analyse"
-        level: 6
-      pint:
+        config:
+          level: 6
+      format:
         command: "vendor/bin/php-cs-fixer fix"
 
-# Verification defaults
+  rails:
+    language: "ruby"
+    framework: "rails"
+    version: "7"
+    manifest: "Gemfile"
+    paths:
+      models: "app/models"
+      services: "app/services"
+      controllers: "app/controllers"
+      migrations: "db/migrate"
+      tests_unit: "test/models"
+      tests_feature: "test/integration"
+    verification:
+      test:
+        command: "bundle exec rails test"
+        filter_flag: "--name"
+      analyze:
+        command: "bundle exec rubocop --format json"
+      format:
+        command: "bundle exec rubocop -a"
+
+  django:
+    language: "python"
+    framework: "django"
+    version: "5"
+    manifest: "pyproject.toml"
+    paths:
+      models: "*/models.py"
+      services: "*/services.py"
+      controllers: "*/views.py"
+      migrations: "*/migrations"
+      tests_unit: "*/tests/unit"
+      tests_feature: "*/tests/integration"
+    verification:
+      test:
+        command: "python manage.py test"
+        filter_flag: "--tag"
+      analyze:
+        command: "ruff check ."
+      format:
+        command: "ruff format ."
+
+  express:
+    language: "javascript"
+    framework: "express"
+    version: "5"
+    manifest: "package.json"
+    paths:
+      models: "src/models"
+      services: "src/services"
+      controllers: "src/controllers"
+      migrations: "migrations"
+      tests_unit: "test/unit"
+      tests_feature: "test/integration"
+    verification:
+      test:
+        command: "npm test"
+        filter_flag: "--grep"
+      analyze:
+        command: "npx eslint ."
+      format:
+        command: "npx prettier --write ."
+
+  springboot:
+    language: "java"
+    framework: "spring-boot"
+    version: "3"
+    manifest: "pom.xml"
+    paths:
+      models: "src/main/java/**/model"
+      services: "src/main/java/**/service"
+      controllers: "src/main/java/**/controller"
+      migrations: "src/main/resources/db/migration"
+      tests_unit: "src/test/java/**/unit"
+      tests_feature: "src/test/java/**/integration"
+    verification:
+      test:
+        command: "mvn test"
+        filter_flag: "-Dtest"
+      analyze:
+        command: "mvn checkstyle:check"
+      format:
+        command: "mvn spotless:apply"
+
+  go:
+    language: "go"
+    framework: "stdlib"
+    version: "1.22"
+    manifest: "go.mod"
+    paths:
+      models: "internal/domain"
+      services: "internal/service"
+      controllers: "internal/handler"
+      migrations: "migrations"
+      tests_unit: "internal"
+      tests_feature: "test"
+    verification:
+      test:
+        command: "go test ./..."
+        filter_flag: "-run"
+      analyze:
+        command: "golangci-lint run"
+      format:
+        command: "gofmt -w ."
+
+# Verification defaults (applied to all stacks unless overridden per-service)
 verification:
-  require_phpunit: true
-  require_phpstan: true
-  require_pint: true
+  require_test: true
+  require_analyze: true
+  require_format: true
   require_agent_review: true
   require_developer_approval: true
 
 # Phase execution
 phase_execution:
   max_retries_on_verification_failure: 3
-  auto_fix_style: true
+  auto_fix_format: true
 
 # Agent configuration
 agents:

@@ -7,7 +7,7 @@
 
 ## Description
 
-Create the codebase researcher agent that deeply analyzes existing PHP service repos.
+Create the codebase researcher agent that deeply analyzes existing service repositories.
 
 ## Deliverables
 
@@ -23,9 +23,10 @@ color: yellow
 ```
 
 **Responsibilities**:
-- Trace execution flows in Laravel (routes -> controllers -> services -> models) and Yii2 (config -> controllers -> actions -> models)
+- Detect stack from manifest files and adapt exploration accordingly
+- Trace execution flows using the framework's conventions (routes -> controllers -> services -> models, or equivalent)
 - Identify existing design patterns (Repository, Service layer, etc.)
-- Map relevant database schema
+- Map relevant database schema or entity definitions
 - Find similar features as reference implementations
 - Document conventions (naming, directory structure, testing)
 - Return structured markdown with file:line references and "10 most essential files" list

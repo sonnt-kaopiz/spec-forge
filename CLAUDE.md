@@ -1,37 +1,37 @@
 # Spec-Forge — Development Guide
 
-Spec-forge is a Claude Code plugin that orchestrates spec-driven development for PHP microservices (Laravel & Yii2). This file guides agents working on building the plugin itself.
+Spec-forge is a Claude Code plugin that orchestrates spec-driven development for microservices across multiple languages and frameworks. This file guides agents working on building the plugin itself.
 
 ## Project Structure
 
 ```
 spec-forge/
 ├── .claude-plugin/
-│   └── plugin.json .............. Plugin manifest (name, version, metadata)
-├── forge.yaml ................... Central config: frameworks, verification, agents
+│ └── plugin.json .............. Plugin manifest (name, version, metadata)
+├── forge.yaml ................... Central config: stack profiles, verification, agents
 ├── CLAUDE.md .................... This file — development guide
 ├── AGENTS.md .................... Agent coordination rules (auto-loaded by Claude Code)
 │
 ├── docs/ ........................ Project documentation (architecture, guides)
-│   └── system-architecture.md ... System architecture overview — READ FIRST
+│ └── system-architecture.md ... System architecture overview — READ FIRST
 │
 ├── commands/
-│   └── forge/ ................... Slash commands (/forge:new, /forge:resume, etc.)
+│ └── forge/ ................... Slash commands (/forge:new, /forge:resume, etc.)
 │
 ├── skills/
-│   ├── codebase-research/ ....... Analyze existing service code patterns
-│   ├── spec-generation/ ......... Generate/validate specifications
-│   ├── external-research/ ....... Research docs, packages, best practices
-│   ├── verification/ ............ Run phpunit/phpstan/pint pipeline
-│   └── context-reconstruction/ .. Rebuild task context on session resume
+│ ├── codebase-research/ ....... Analyze existing service code patterns
+│ ├── spec-generation/ ......... Generate/validate specifications
+│ ├── external-research/ ....... Research docs, packages, best practices
+│ ├── verification/ ............ Run test/analyze/format pipeline
+│ └── context-reconstruction/ .. Rebuild task context on session resume
 │
 ├── agents/ ...................... Subagent definitions (see AGENTS.md)
 ├── hooks/ ....................... Event-triggered actions (e.g., session start)
 ├── scripts/ ..................... Shell scripts (verification, state management)
 │
 ├── templates/
-│   ├── state.yaml ............... Template for per-task state tracking
-│   └── forge-service.yaml ....... Template users place in service repo roots
+│ ├── state.yaml ............... Template for per-task state tracking
+│ └── forge-service.yaml ....... Template users place in service repo roots
 │
 └── tasks/ ....................... Implementation task specs and TODO tracker
 ```
@@ -55,9 +55,10 @@ See `tasks/TODO.md` for the full task list, dependency graph, and recommended bu
 ## Key Design Rules
 
 - `state.yaml` is the single source of truth for task progress. Only orchestrating commands (in `commands/`) modify it — agents and skills never write state directly.
-- `forge.yaml` holds global config (framework paths, verification commands, agent counts). Service repos have their own `forge-service.yaml` that can override settings.
+- `forge.yaml` holds global config (stack profiles, verification commands, agent counts). Service repos have their own `forge-service.yaml` that can override settings.
 - `templates/state.yaml` is a template, not live state. Live state files are created per-task in service repos.
 - All agent output is structured markdown. Agents return data; commands decide what to do with it.
+- Stack profiles in `forge.yaml` define language, framework, paths, and verification commands. Services reference a profile by name in `forge-service.yaml`. New languages or frameworks are added by adding a new profile — no code changes needed.
 
 ## Development Conventions
 

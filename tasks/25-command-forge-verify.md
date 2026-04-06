@@ -17,13 +17,13 @@ Create the command that runs the verification pipeline.
 
 ```yaml
 description: Run the verification pipeline for the current phase
-argument-hint: [--phpunit-only | --phpstan-only | --pint-only | --review-only]
+argument-hint: [--test-only | --analyze-only | --format-only | --review-only]
 ```
 
 **Workflow**:
 1. Read state.yaml for current phase and service
-2. Determine verification commands from forge.yaml config
-3. Run verification skill (full pipeline or specific tool if flag provided)
+2. Determine verification commands from the stack profile in forge.yaml (or service overrides)
+3. Run verification skill (full pipeline or specific step if flag provided)
 4. Write results to VERIFICATION.md
 5. Update state.yaml verification fields
 6. If all pass, ask developer for approval

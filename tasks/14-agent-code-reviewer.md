@@ -7,7 +7,7 @@
 
 ## Description
 
-Create the code reviewer agent for PHP code quality review.
+Create the code reviewer agent for code quality review.
 
 ## Deliverables
 
@@ -26,7 +26,7 @@ color: red
 - Review git diff for current phase changes
 - Check adherence to project conventions from research phase
 - Identify bugs, security vulnerabilities, logic errors
-- Check PHP type safety, null handling, exception handling
+- Check type safety, null/nil handling, error handling (in the idiom of the target language)
 - Verify test coverage for new code
 - Confidence scoring: only report findings >= 80 confidence
 - Group findings: Critical / Important / Minor

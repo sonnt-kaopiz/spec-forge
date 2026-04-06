@@ -18,7 +18,7 @@ Create the state.yaml template that defines the complete state schema. This is t
   - `current_phase`: index into phases list
   - `current_step`: enum (discussion, planning, implementation, verification)
   - `services`: list of {name, repo, branch, status}
-  - `phases`: list of {id, name, status, service, started_at, completed_at, verification{phpunit, phpstan, pint, review}}
+  - `phases`: list of {id, name, status, service, started_at, completed_at, verification{test, analyze, format, review}}
   - `blockers`: list of {description, created_at, resolved_at}
   - `session_log`: list of {session, phases_worked, duration_minutes}
 

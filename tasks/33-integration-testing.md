@@ -14,7 +14,7 @@ End-to-end testing of the complete workflow.
 - [ ] Full workflow walkthrough: new -> spec -> research -> architecture -> plan -> phase execution -> verify -> next -> complete
 - [ ] `/forge:resume` — verify context reconstruction after session break
 - [ ] `/forge:status` — verify dashboard displays correctly
-- [ ] `/forge:verify` — verify pipeline runs phpunit/phpstan/pint correctly
+- [ ] `/forge:verify` — verify pipeline runs test/analyze/format steps correctly for the configured stack
 - [ ] `/forge:next --force` — verify force-skip works
 - [ ] SessionStart hook — verify active task detection in service repo
 - [ ] Cross-service task — verify state tracking across multiple services

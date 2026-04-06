@@ -36,9 +36,9 @@ phases: []
   #   started_at: null
   #   completed_at: null
   #   verification:
-  #     phpunit: null          # null | pass | fail
-  #     phpstan: null
-  #     pint: null
+  #     test: null             # null | pass | fail
+  #     analyze: null
+  #     format: null
   #     review: null           # null | approved | changes-requested
 
 # Blockers

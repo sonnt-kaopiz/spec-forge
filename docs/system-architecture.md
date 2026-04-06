@@ -2,7 +2,7 @@
 
 ## Overview
 
-Spec-Forge is a Claude Code plugin that orchestrates spec-driven development for PHP microservices (Laravel & Yii2). It guides developers through a structured workflow — from requirement discovery to verified implementation — using specialized AI agents, persistent state tracking, and a multi-gate approval process.
+Spec-Forge is a Claude Code plugin that orchestrates spec-driven development for microservices across multiple languages and frameworks. It guides developers through a structured workflow — from requirement discovery to verified implementation — using specialized AI agents, persistent state tracking, and a multi-gate approval process.
 
 The plugin operates as a **meta-prompt orchestration layer**: slash commands drive the workflow, skills encapsulate reusable capabilities, and agents perform focused analysis tasks. All coordination flows through a central state file (`state.yaml`) that acts as the single source of truth for task progress.
 
@@ -23,12 +23,12 @@ The plugin operates as a **meta-prompt orchestration layer**: slash commands dri
         v              v              v              v
 +------------+  +------------+  +------------+  +------------+
 | Service A  |  | Service B  |  | Service C  |  |  External  |
-| (Laravel)  |  |   (Yii2)  |  | (Laravel)  |  |   APIs &   |
+| (Laravel)  |  |   (Rails)  |  | (Express)  |  |   APIs &   |
 |            |  |            |  |            |  |    Docs    |
 +------------+  +------------+  +------------+  +------------+
 ```
 
-Spec-Forge sits between the developer and their PHP microservice repositories. It reads codebases, generates specifications, designs architectures, and verifies implementations — all while maintaining persistent state across Claude Code sessions.
+Spec-Forge sits between the developer and their service repositories. It reads codebases, generates specifications, designs architectures, and verifies implementations — all while maintaining persistent state across Claude Code sessions.
 
 ## Core Architecture
 
@@ -63,8 +63,9 @@ Spec-Forge sits between the developer and their PHP microservice repositories. I
         v                               v
 +--------------------+    +-----------------------------+
 |  Service Codebases |    |  Verification Pipeline      |
-|  (Laravel / Yii2)  |    |  phpunit | phpstan | pint   |
-+--------------------+    +-----------------------------+
+|  (any language /   |    |  test | analyze | format    |
+|   framework)       |    +-----------------------------+
++--------------------+
 ```
 
 ### Layered Responsibilities
@@ -162,7 +163,7 @@ Within `phase-execution`, each phase cycles through steps: `discussion` -> `plan
 |  +-------------------------+  +-------------------------+          |
 |  | codebase-researcher x2  |  | external-researcher x1  |         |
 |  | - Similar features      |  | - Official docs         |         |
-|  | - Architecture/patterns |  | - Composer packages     |         |
+|  | - Architecture/patterns |  | - Package registries    |         |
 |  | - Data flow/schema      |  | - Reference impls       |         |
 |  +-------------------------+  +-------------------------+          |
 |                                                                    |
@@ -177,7 +178,7 @@ Within `phase-execution`, each phase cycles through steps: `discussion` -> `plan
 |  ARCHITECTURE TIER (Green, Opus)                                   |
 |  +----------------------------------------------------------+     |
 |  | solution-architect x1                                      |    |
-|  | - PHP interfaces & class signatures                        |    |
+|  | - Interfaces & class/type signatures                       |    |
 |  | - Database schema & migrations                             |    |
 |  | - API contracts for cross-service communication            |    |
 |  | - Decisive: one approach, no option lists                  |    |
@@ -239,33 +240,65 @@ spec-forge/                          Service Repo/
 +------------------+                 +---------------------+
 | forge.yaml       |  <-- defaults   | forge-service.yaml  |
 |                  |                 |                     |
-| frameworks:      |                 | service_name: "..."  |
-|   laravel: ...   |  overridden by  | framework: "laravel" |
-|   yii2: ...      |  ------------> | verification:        |
-| verification:    |                 |   phpstan:           |
-|   require_*: ... |                 |     level: 9         |
+| stacks:          |                 | service_name: "..." |
+|   laravel: ...   |  overridden by  | stack: "laravel"    |
+|   rails: ...     |  ------------> | verification:        |
+|   django: ...    |                 |   analyze:           |
+| verification:    |                 |     config:          |
+|   require_*: ... |                 |       level: 9       |
 | agents:          |                 +---------------------+
 |   architect: opus|
 +------------------+
 ```
 
-- **`forge.yaml`** (central): Global defaults for framework paths, verification requirements, agent configuration
-- **`forge-service.yaml`** (per-service): Overrides for service-specific settings (framework, PHP version, custom paths, verification tweaks)
+- **`forge.yaml`** (central): Stack profiles (language, paths, verification commands), global verification defaults, agent configuration
+- **`forge-service.yaml`** (per-service): Overrides for service-specific settings (which stack profile to use, custom paths, verification tweaks)
+
+### Stack Profiles
+
+Each stack profile in `forge.yaml` defines:
+
+```yaml
+stacks:
+  <profile-name>:
+    language: "<language>"       # php, ruby, python, javascript, java, go, rust, ...
+    framework: "<framework>"     # laravel, rails, django, express, spring-boot, ...
+    version: "<version>"
+    manifest: "<manifest-file>"  # composer.json, Gemfile, package.json, go.mod, ...
+    paths:
+      models: "<path>"
+      services: "<path>"
+      controllers: "<path>"
+      migrations: "<path>"
+      tests_unit: "<path>"
+      tests_feature: "<path>"
+    verification:
+      test:
+        command: "<run tests>"
+        filter_flag: "<flag>"
+      analyze:
+        command: "<static analysis>"
+        config: {}
+      format:
+        command: "<formatter>"
+```
+
+Built-in profiles: `laravel`, `yii2`, `rails`, `django`, `express`, `springboot`, `go`. Users may add custom profiles for any stack.
 
 ### Verification Pipeline
 
 ```
-+----------+     +---------+     +------+     +-------------+     +----------+
-|  phpunit |---->| phpstan |---->| pint |---->| code-review |---->| developer|
-|  (tests) |     | (static)|     |(style)|    | (agents)    |     | approval |
-+----------+     +---------+     +------+     +-------------+     +----------+
++----------+     +---------+     +--------+     +-------------+     +----------+
+|   test   |---->| analyze |---->| format |---->| code-review |---->| developer|
+| (tests)  |     | (static)|     |(style) |     | (agents)    |     | approval |
++----------+     +---------+     +--------+     +-------------+     +----------+
      |                |              |              |
      v                v              v              v
   pass/fail       pass/fail      pass/fail     approved/
                                               changes-requested
 
 On failure: auto-retry up to 3x (configurable in forge.yaml)
-Style issues: auto-fixed by pint when auto_fix_style: true
+Format issues: auto-fixed when auto_fix_format: true
 ```
 
 All four checks must pass before a phase is considered complete. Each result is recorded in `state.yaml` under the phase's `verification` block.
@@ -309,7 +342,7 @@ The context-reconstructor agent is optimized for speed: it reads only the docume
 
 ## Cross-Service Coordination
 
-Spec-Forge manages tasks that span multiple microservices:
+Spec-Forge manages tasks that span multiple services:
 
 ```
 Task: "Add user notification preferences"
@@ -335,7 +368,7 @@ Each phase targets a specific service. The phase-planner agent orders phases by 
 - **No credential storage**: Spec-Forge never stores API keys or credentials. Service authentication is handled by the developer's existing tooling.
 - **Read-heavy by design**: Agents primarily read and analyze code. Write operations happen through standard Claude Code tool calls, subject to the user's permission settings.
 - **Developer gates**: Critical decisions (spec approval, architecture approval, plan approval) always require explicit developer confirmation before proceeding.
-- **Verification as guardrail**: The phpunit/phpstan/pint pipeline catches issues before they propagate. Code review agents add a second layer of automated review.
+- **Verification as guardrail**: The test/analyze/format pipeline catches issues before they propagate. Code review agents add a second layer of automated review.
 
 ## Technology Stack
 
@@ -345,7 +378,7 @@ Each phase targets a specific service. The phase-planner agent orders phases by 
 | Agent orchestration | Claude Code subagents (Sonnet / Opus) |
 | State persistence | YAML files on disk |
 | Configuration | YAML (forge.yaml, forge-service.yaml) |
-| Verification tools | PHPUnit, PHPStan, Laravel Pint / PHP-CS-Fixer |
+| Verification tools | Defined per stack profile (test / analyze / format) |
 | Shell scripts | Bash (POSIX-compatible) |
-| Target frameworks | Laravel 11, Yii2 2.0 |
+| Supported stacks | Laravel, Yii2, Rails, Django, Express, Spring Boot, Go (extensible) |
 | Supported platforms | macOS, Linux |

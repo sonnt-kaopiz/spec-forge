@@ -29,10 +29,10 @@ Create the base plugin directory structure and metadata files.
 {
   "name": "spec-forge",
   "version": "1.0.0",
-  "description": "Spec-driven development workflow for PHP microservices...",
+  "description": "Spec-driven development workflow for microservices. Supports any language or framework via configurable stack profiles.",
   "author": { "name": "sonnt" },
   "license": "MIT",
-  "keywords": ["php", "laravel", "yii2", "spec-driven", "workflow", "microservices"]
+  "keywords": ["spec-driven", "workflow", "microservices", "multi-language", "agents", "verification"]
 }
 ```
 

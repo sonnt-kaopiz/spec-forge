@@ -1,4 +1,4 @@
-# forge.yaml — place this in your service repo root
+# forge-service.yaml — place this in your service repo root
 # This connects the service to the central workspace
 
 # Path to the workspace root — the parent folder holding all service repos (absolute)
@@ -7,15 +7,15 @@ workspace_root: "/path/to/workspace"
 
 # Service identity
 service_name: "my-service"
-framework: "laravel"    # or "yii2"
-php_version: "8.2"
+stack: "laravel"    # references a profile in central forge.yaml (e.g. laravel, yii2, rails, django, express, springboot, go)
 
-# Override verification commands (optional — defaults come from central forge.yaml)
+# Override verification commands (optional — defaults come from the stack profile in forge.yaml)
 # verification:
-#   phpstan:
-#     level: 9
+#   analyze:
+#     config:
+#       level: 9
 #     paths: ["app/", "domain/"]
-#   phpunit:
+#   test:
 #     command: "php artisan test --parallel"
 
 # Override paths (optional — for non-standard directory structures)

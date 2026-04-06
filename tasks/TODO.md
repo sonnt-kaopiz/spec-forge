@@ -12,8 +12,9 @@
 | 01 | [Plugin scaffold](01-plugin-scaffold.md) | Critical | — | [x] |
 | 02 | [CLAUDE.md & AGENTS.md](02-claude-md-agents-md.md) | Critical | 01 | [x] |
 | 03 | [forge.yaml config](03-forge-yaml-config.md) | Critical | 01 | [x] |
+| 03.1 | [Built-in stack profiles](03.1-stack-profiles.md) | High | 03 | [ ] |
 | 04 | [State schema (templates/state.yaml)](04-state-schema.md) | Critical | 01 | [x] |
-| 04.1 | [Agent: codebase-mapper](04.1-agent-codebase-mapper.md) | High | 01 | [ ] |
+| 04.1 | [Agent: codebase-mapper](04.1-agent-codebase-mapper.md) | High | 01 | [x] |
 | 04.2 | [Command: forge:map-codebase](04.2-command-forge-map-codebase.md) | High | 04.1 | [ ] |
 | 05 | [Task init script](05-task-init-script.md) | Critical | 04 | [ ] |
 | 06 | [State management scripts](06-state-management-scripts.md) | High | 04 | [ ] |
@@ -81,14 +82,14 @@
 
 | Phase | Tasks | Critical | Status |
 |-------|-------|----------|--------|
-| 1. Foundation | 8 | 4 | Not started |
+| 1. Foundation | 9 | 4 | In progress |
 | 2. Templates | 2 | 0 | Not started |
 | 3. Agents | 7 | 1 | Not started |
 | 4. Skills | 5 | 1 | Not started |
 | 5. Commands | 9 | 2 | Not started |
 | 6. Hooks & Scripts | 2 | 0 | Not started |
 | 7. Polish | 2 | 0 | Not started |
-| **Total** | **35** | **8** | |
+| **Total** | **36** | **8** | |
 
 ## Recommended Build Order
 

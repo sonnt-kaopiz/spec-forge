@@ -18,7 +18,7 @@ Create the codebase research skill that orchestrates parallel codebase-researche
 ```yaml
 name: codebase-research
 description: >
-  Performs deep codebase analysis for PHP services using Laravel or Yii2.
+  Performs deep codebase analysis for service repositories in any language or framework.
   Use when "analyze the codebase", "understand the code", "find patterns",
   "trace execution", "explore the architecture", or at codebase-research
   phase of a spec-forge task.
