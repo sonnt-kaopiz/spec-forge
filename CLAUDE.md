@@ -12,8 +12,11 @@ spec-forge/
 ├── CLAUDE.md .................... This file — development guide
 ├── AGENTS.md .................... Agent coordination rules (auto-loaded by Claude Code)
 │
+├── docs/ ........................ Project documentation (architecture, guides)
+│   └── system-architecture.md ... System architecture overview — READ FIRST
+│
 ├── commands/
-│   └── forge/ ................... Slash commands (/forge new, /forge resume, etc.)
+│   └── forge/ ................... Slash commands (/forge:new, /forge:resume, etc.)
 │
 ├── skills/
 │   ├── codebase-research/ ....... Analyze existing service code patterns
@@ -33,9 +36,13 @@ spec-forge/
 └── tasks/ ....................... Implementation task specs and TODO tracker
 ```
 
+## Before You Start
+
+Read `docs/system-architecture.md` before making any changes. It defines the component model, workflow states, agent roster, and design decisions. If something in your task conflicts with the architecture document, ask for clarification before proceeding.
+
 ## Build Progress
 
-See `tasks/TODO.md` for the full task list, dependency graph, and recommended build order. Tasks 01-04 (scaffold, CLAUDE.md, forge.yaml, state schema) are done. Everything else is pending.
+See `tasks/TODO.md` for the full task list, dependency graph, and recommended build order.
 
 ## How Plugin Components Work
 
