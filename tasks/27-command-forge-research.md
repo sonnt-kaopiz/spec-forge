@@ -1,9 +1,9 @@
-# 27 — Command: /forge research
+# 27 — Command: /forge:research
 
 **Phase**: 5 - Commands
 **Priority**: Medium
 **Depends on**: 18
-**Plan reference**: Section 7 (/forge research)
+**Plan reference**: Section 7 (/forge:research)
 
 ## Description
 

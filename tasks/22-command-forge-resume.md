@@ -1,9 +1,9 @@
-# 22 — Command: /forge resume
+# 22 — Command: /forge:resume
 
 **Phase**: 5 - Commands
 **Priority**: Critical
 **Depends on**: 04, 20
-**Plan reference**: Section 7 (/forge resume)
+**Plan reference**: Section 7 (/forge:resume)
 
 ## Description
 

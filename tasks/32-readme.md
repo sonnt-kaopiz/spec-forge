@@ -15,7 +15,7 @@ Create comprehensive README.md for the plugin.
   - What spec-forge is and why
   - Installation instructions (as Claude Code plugin)
   - Quick start guide
-  - Complete command reference (/forge new, resume, status, next, verify, spec, research, review, plan)
+  - Complete command reference (/forge:new, /forge:resume, /forge:status, /forge:next, /forge:verify, /forge:spec, /forge:research, /forge:review, /forge:plan)
   - Configuration guide (forge.yaml for central repo and service repos)
   - Workflow diagram (text-based)
   - Agent descriptions

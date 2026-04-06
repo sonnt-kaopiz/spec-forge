@@ -1,9 +1,9 @@
-# 26 — Command: /forge spec
+# 26 — Command: /forge:spec
 
 **Phase**: 5 - Commands
 **Priority**: Medium
 **Depends on**: 17
-**Plan reference**: Section 7 (/forge spec)
+**Plan reference**: Section 7 (/forge:spec)
 
 ## Description
 

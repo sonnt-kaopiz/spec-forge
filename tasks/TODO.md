@@ -51,15 +51,15 @@
 
 | # | Task | Priority | Depends | Status |
 |---|------|----------|---------|--------|
-| 21 | [/forge new](21-command-forge-new.md) | Critical | 04,05,16,17,18,12,13 | [ ] |
-| 22 | [/forge resume](22-command-forge-resume.md) | Critical | 04, 20 | [ ] |
-| 23 | [/forge status](23-command-forge-status.md) | High | 04 | [ ] |
-| 24 | [/forge next](24-command-forge-next.md) | High | 04, 08 | [ ] |
-| 25 | [/forge verify](25-command-forge-verify.md) | High | 19 | [ ] |
-| 26 | [/forge spec](26-command-forge-spec.md) | Medium | 17 | [ ] |
-| 27 | [/forge research](27-command-forge-research.md) | Medium | 18 | [ ] |
-| 28 | [/forge review](28-command-forge-review.md) | Medium | 14 | [ ] |
-| 31 | [/forge plan](31-command-forge-plan.md) | Medium | 04 | [ ] |
+| 21 | [/forge:new](21-command-forge-new.md) | Critical | 04,05,16,17,18,12,13 | [ ] |
+| 22 | [/forge:resume](22-command-forge-resume.md) | Critical | 04, 20 | [ ] |
+| 23 | [/forge:status](23-command-forge-status.md) | High | 04 | [ ] |
+| 24 | [/forge:next](24-command-forge-next.md) | High | 04, 08 | [ ] |
+| 25 | [/forge:verify](25-command-forge-verify.md) | High | 19 | [ ] |
+| 26 | [/forge:spec](26-command-forge-spec.md) | Medium | 17 | [ ] |
+| 27 | [/forge:research](27-command-forge-research.md) | Medium | 18 | [ ] |
+| 28 | [/forge:review](28-command-forge-review.md) | Medium | 14 | [ ] |
+| 31 | [/forge:plan](31-command-forge-plan.md) | Medium | 04 | [ ] |
 
 ## Phase 6: Hooks & Scripts
 
@@ -103,5 +103,5 @@ Build in dependency order, not strictly by phase number:
 7. **16-20** skills (each depends on its matching agent)
 8. **23, 31** simple commands first (status, plan — just read state)
 9. **22, 24, 25, 26, 27, 28** medium commands
-10. **21** /forge new last (depends on almost everything)
+10. **21** /forge:new last (depends on almost everything)
 11. **32, 33** documentation and testing

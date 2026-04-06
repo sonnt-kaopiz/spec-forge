@@ -1,9 +1,9 @@
-# 25 — Command: /forge verify
+# 25 — Command: /forge:verify
 
 **Phase**: 5 - Commands
 **Priority**: High
 **Depends on**: 19
-**Plan reference**: Section 7 (/forge verify)
+**Plan reference**: Section 7 (/forge:verify)
 
 ## Description
 

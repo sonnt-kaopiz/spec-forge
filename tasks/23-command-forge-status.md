@@ -1,9 +1,9 @@
-# 23 — Command: /forge status
+# 23 — Command: /forge:status
 
 **Phase**: 5 - Commands
 **Priority**: High
 **Depends on**: 04
-**Plan reference**: Section 7 (/forge status)
+**Plan reference**: Section 7 (/forge:status)
 
 ## Description
 

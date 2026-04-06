@@ -17,15 +17,15 @@ spec-forge/
 │
 ├── commands/
 │   └── forge/
-│       ├── new.md                    # /forge new <name> — create task
-│       ├── resume.md                 # /forge resume [task-id] — resume from state
-│       ├── status.md                 # /forge status — show task/phase dashboard
-│       ├── next.md                   # /forge next — advance to next phase
-│       ├── verify.md                 # /forge verify — run verification suite
-│       ├── spec.md                   # /forge spec — generate/edit specification
-│       ├── research.md               # /forge research — run external research
-│       ├── plan.md                   # /forge plan — view/regenerate plan
-│       └── review.md                 # /forge review — run code review cycle
+│       ├── new.md                    # /forge:new <name> — create task
+│       ├── resume.md                 # /forge:resume [task-id] — resume from state
+│       ├── status.md                 # /forge:status — show task/phase dashboard
+│       ├── next.md                   # /forge:next — advance to next phase
+│       ├── verify.md                 # /forge:verify — run verification suite
+│       ├── spec.md                   # /forge:spec — generate/edit specification
+│       ├── research.md               # /forge:research — run external research
+│       ├── plan.md                   # /forge:plan — view/regenerate plan
+│       └── review.md                 # /forge:review — run code review cycle
 │
 ├── agents/
 │   ├── codebase-researcher.md        # Yellow — explores service repo patterns
@@ -566,21 +566,21 @@ Valid transitions and the commands that trigger them:
 
 | From | To | Trigger | Gate |
 |------|----|---------|------|
-| (none) | discovery | `/forge new` | None |
+| (none) | discovery | `/forge:new` | None |
 | discovery | spec | Automatic after understanding | None |
 | spec | codebase-research | Spec approved by developer | Developer approval |
 | codebase-research | external-research | Research complete | None |
 | external-research | architecture | Research complete | None |
 | architecture | planning | Architecture approved | Developer approval |
 | planning | phase-execution | Plan approved | Developer approval |
-| phase-execution | phase-execution | `/forge next` (next phase) | Phase verification pass |
+| phase-execution | phase-execution | `/forge:next` (next phase) | Phase verification pass |
 | phase-execution | completed | All phases done | Final developer approval |
 | Any | blocked | Blocker identified | None |
 | blocked | (previous) | Blocker resolved | None |
 
 ### Resume Logic
 
-When a session starts (or `/forge resume` is invoked):
+When a session starts (or `/forge:resume` is invoked):
 
 1. Read `state.yaml` from `<workspace_root>/.ai-workflow/tasks/<task-id>/` — determine `status`, `current_phase`, `current_step`
 2. Based on status, load ONLY the relevant documents:
@@ -622,7 +622,7 @@ The command markdown files use a pattern where they instruct Claude to:
 
 ### Template Structure with Context Injection
 
-Here is the pattern used in the main `/forge new` command (and similar commands):
+Here is the pattern used in the main `/forge:new` command (and similar commands):
 
 ```markdown
 ---
@@ -941,7 +941,7 @@ description: >
 
 ## 7. Command Interface
 
-### `/forge new`
+### `/forge:new`
 
 ```yaml
 # commands/forge/new.md
@@ -975,7 +975,7 @@ argument-hint: <task-name> [--source jira:KEY | linear:KEY | github:NUM]
 
 The command is long but each step is clearly delineated. Developer approval gates are at steps 9, 16, 18, and at every phase verification.
 
-### `/forge resume`
+### `/forge:resume`
 
 ```yaml
 ---
@@ -992,7 +992,7 @@ argument-hint: [task-id]
 5. Display status dashboard
 5. Continue from current state (invoke appropriate phase logic)
 
-### `/forge status`
+### `/forge:status`
 
 ```yaml
 ---
@@ -1021,7 +1021,7 @@ argument-hint: [task-id]
 ╚══════════════════════════════════════════════════════╝
 ```
 
-### `/forge next`
+### `/forge:next`
 
 ```yaml
 ---
@@ -1040,7 +1040,7 @@ argument-hint: [--force]
    - Generate CONTEXT.md for next phase from plan.md + previous RESULT.md
 4. If all phases complete, transition to `completed`
 
-### `/forge verify`
+### `/forge:verify`
 
 ```yaml
 ---
@@ -1058,7 +1058,7 @@ argument-hint: [--phpunit-only | --phpstan-only | --pint-only | --review-only]
 6. If all pass, ask developer for approval
 7. On approval, update state to verification complete
 
-### `/forge spec`
+### `/forge:spec`
 
 ```yaml
 ---
@@ -1072,7 +1072,7 @@ argument-hint: [--from-jira KEY | --from-linear KEY | --from-github NUM | --inte
 2. Run spec-generation skill with appropriate source
 3. Present spec for developer review
 
-### `/forge research`
+### `/forge:research`
 
 ```yaml
 ---
@@ -1086,7 +1086,7 @@ argument-hint: [specific topic to research]
 2. Run external-research skill with task context and any specific topic from $ARGUMENTS
 3. Write results to external-research.md
 
-### `/forge review`
+### `/forge:review`
 
 ```yaml
 ---
@@ -1187,7 +1187,7 @@ files_modified:
 
 When a task spans multiple services, the developer workflow is:
 
-1. **In any service repo or the workspace root**: Run `/forge new`, complete research/architecture/planning phases. These phases are repo-agnostic -- they read service repos but don't modify them. All output goes to `<workspace_root>/.ai-workflow/tasks/`.
+1. **In any service repo or the workspace root**: Run `/forge:new`, complete research/architecture/planning phases. These phases are repo-agnostic -- they read service repos but don't modify them. All output goes to `<workspace_root>/.ai-workflow/tasks/`.
 
 2. **Switch to service repo**: For phase execution, the developer opens Claude Code in the relevant service repo (e.g., `cd ~/Workspace/services/user-service && claude`). The spec-forge plugin is installed in this repo. When Claude Code starts, the SessionStart hook:
    - Detects forge.yaml in the service repo
@@ -1284,7 +1284,7 @@ This script:
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "SPEC-FORGE ACTIVE TASK DETECTED:\nTask: SF-042 - Refactor user authentication to OAuth2\nStatus: phase-execution | Phase 2/3 | Step: implementation\nService: user-service (in-progress)\nBranch: feature/SF-042-oauth2\n\nTo resume this task, run: /forge resume SF-042\nTo see full status, run: /forge status SF-042"
+    "additionalContext": "SPEC-FORGE ACTIVE TASK DETECTED:\nTask: SF-042 - Refactor user authentication to OAuth2\nStatus: phase-execution | Phase 2/3 | Step: implementation\nService: user-service (in-progress)\nBranch: feature/SF-042-oauth2\n\nTo resume this task, run: /forge:resume SF-042\nTo see full status, run: /forge:status SF-042"
   }
 }
 ```
@@ -1324,8 +1324,8 @@ This script is invoked from the service repo working directory. It reads `forge.
 
 | Tool | On Failure | Recovery |
 |------|-----------|----------|
-| PHPUnit | Stop pipeline, show failure output | Developer fixes tests, runs `/forge verify --phpunit-only` |
-| PHPStan | Stop pipeline, show errors | Developer fixes type errors, runs `/forge verify --phpstan-only` |
+| PHPUnit | Stop pipeline, show failure output | Developer fixes tests, runs `/forge:verify --phpunit-only` |
+| PHPStan | Stop pipeline, show errors | Developer fixes type errors, runs `/forge:verify --phpstan-only` |
 | Pint | Auto-fix and continue | Developer reviews auto-fixes |
 | Agent Review | Present findings | Developer decides: fix now, fix later, or accept |
 | Developer Approval | Block phase completion | Developer must explicitly approve to proceed |
@@ -1467,12 +1467,12 @@ Only the solution-architect agent uses Opus. Everything else uses Sonnet. This i
 
 | Failure | Impact | Recovery |
 |---------|--------|----------|
-| Session crashes mid-phase | Work may be lost since last state update | `/forge resume` reads state.yaml, picks up from last recorded step |
+| Session crashes mid-phase | Work may be lost since last state update | `/forge:resume` reads state.yaml, picks up from last recorded step |
 | state.yaml corruption | Task state lost | state.yaml is committed to git; `git checkout -- state.yaml` restores |
-| Agent produces bad output | Phase document is malformed | Developer reviews and can regenerate with `/forge research` or manual edit |
-| Verification loop (tests keep failing) | Stuck in phase | `max_retries_on_verification_failure` config limits retries; `/forge next --force` bypasses |
+| Agent produces bad output | Phase document is malformed | Developer reviews and can regenerate with `/forge:research` or manual edit |
+| Verification loop (tests keep failing) | Stuck in phase | `max_retries_on_verification_failure` config limits retries; `/forge:next --force` bypasses |
 | Workspace root path changes | Service repos can't find tasks | Update `workspace_root` in service forge.yaml |
-| Developer abandons task mid-way | Orphaned task state | Set status to `abandoned` manually or via future `/forge abandon` command |
+| Developer abandons task mid-way | Orphaned task state | Set status to `abandoned` manually or via future `/forge:abandon` command |
 
 ### Limitations
 
@@ -1520,8 +1520,8 @@ This project uses spec-forge for spec-driven development. Key points:
 - Each task follows a strict workflow: spec → research → architecture → planning → phased execution
 - State is persisted in `state.yaml` — this is the source of truth
 - Verification requires: phpunit, phpstan, pint, agent review, developer approval
-- Use `/forge status` to see current task state
-- Use `/forge resume` to continue a task after session break
+- Use `/forge:status` to see current task state
+- Use `/forge:resume` to continue a task after session break
 - Never skip phases. Never proceed without developer approval at gates.
 - When working in a service repo, check for `forge.yaml` in the repo root for service-specific configuration.
 - All plugin output lives in `.ai-workflow/` at the workspace root (the parent folder holding all service repos).

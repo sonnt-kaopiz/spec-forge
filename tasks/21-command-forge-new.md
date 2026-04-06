@@ -1,9 +1,9 @@
-# 21 — Command: /forge new
+# 21 — Command: /forge:new
 
 **Phase**: 5 - Commands
 **Priority**: Critical
 **Depends on**: 04, 05, 16, 17, 18, 12, 13
-**Plan reference**: Section 7 (/forge new)
+**Plan reference**: Section 7 (/forge:new)
 
 ## Description
 

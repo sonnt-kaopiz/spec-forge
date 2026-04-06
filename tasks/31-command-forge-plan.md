@@ -1,4 +1,4 @@
-# 31 — Command: /forge plan
+# 31 — Command: /forge:plan
 
 **Phase**: 5 - Commands
 **Priority**: Medium

@@ -1,9 +1,9 @@
-# 28 — Command: /forge review
+# 28 — Command: /forge:review
 
 **Phase**: 5 - Commands
 **Priority**: Medium
 **Depends on**: 14
-**Plan reference**: Section 7 (/forge review)
+**Plan reference**: Section 7 (/forge:review)
 
 ## Description
 

@@ -1,9 +1,9 @@
-# 24 — Command: /forge next
+# 24 — Command: /forge:next
 
 **Phase**: 5 - Commands
 **Priority**: High
 **Depends on**: 04, 08
-**Plan reference**: Section 7 (/forge next)
+**Plan reference**: Section 7 (/forge:next)
 
 ## Description
 
