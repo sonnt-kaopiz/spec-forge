@@ -11,9 +11,9 @@ Create the shell script that initializes a new task's directory structure.
 
 ## Deliverables
 
-- [ ] `scripts/init-task.sh` — accepts task slug, creates:
+- [ ] `scripts/init-task.sh` — accepts task slug and workspace root, creates:
   ```
-  tasks/<task-slug>/
+  <workspace_root>/.ai-workflow/tasks/<task-slug>/
   ├── spec.md          (from template)
   ├── research.md      (from template)
   ├── external-research.md (from template)
@@ -27,6 +27,7 @@ Create the shell script that initializes a new task's directory structure.
 
 ## Notes
 
-- Script should auto-increment task ID by scanning existing `tasks/SF-*` directories
+- Script should auto-increment task ID by scanning existing `<workspace_root>/.ai-workflow/tasks/SF-*` directories
+- Must create `.ai-workflow/tasks/` if it does not exist
 - Must be idempotent — running twice should not destroy existing data
 - Populate state.yaml with initial values (status: discovery, timestamps, etc.)

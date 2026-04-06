@@ -20,9 +20,9 @@ Create the SessionStart hook that auto-detects active tasks when Claude Code sta
 
 **detect-active-task.sh** behavior:
 1. Look for `forge.yaml` in current working directory (service repo)
-2. If found, read `spec_forge_path`
-3. Scan `<spec_forge_path>/tasks/*/state.yaml` for active tasks targeting this service
-4. If no forge.yaml (in spec-forge repo itself), scan all tasks directly
+2. If found, read `workspace_root` from it
+3. Scan `<workspace_root>/.ai-workflow/tasks/*/state.yaml` for active tasks targeting this service
+4. If no forge.yaml, walk up from cwd looking for `.ai-workflow/` directory at the workspace root
 5. Output JSON with `hookSpecificOutput.additionalContext` containing task summary and resume instructions
 
 ## Notes

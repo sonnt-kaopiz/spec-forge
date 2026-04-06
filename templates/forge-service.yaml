@@ -1,8 +1,9 @@
 # forge.yaml — place this in your service repo root
-# This connects the service to the central spec-forge repo
+# This connects the service to the central workspace
 
-# Path to the central spec-forge repo (absolute)
-spec_forge_path: "/path/to/spec-forge"
+# Path to the workspace root — the parent folder holding all service repos (absolute)
+# .ai-workflow/ directory lives here for all plugin runtime output
+workspace_root: "/path/to/workspace"
 
 # Service identity
 service_name: "my-service"

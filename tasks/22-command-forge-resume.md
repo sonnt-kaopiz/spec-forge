@@ -21,8 +21,9 @@ argument-hint: [task-id]
 ```
 
 **Workflow**:
-1. If task-id provided, look for `tasks/<task-id>*/state.yaml`
-2. If no task-id, scan all `tasks/*/state.yaml` for active tasks, show menu
-3. Run context-reconstruction skill
-4. Display status dashboard
-5. Continue from current state (invoke appropriate phase logic)
+1. Resolve `workspace_root` from forge.yaml config
+2. If task-id provided, look for `<workspace_root>/.ai-workflow/tasks/<task-id>*/state.yaml`
+3. If no task-id, scan all `<workspace_root>/.ai-workflow/tasks/*/state.yaml` for active tasks, show menu
+4. Run context-reconstruction skill
+5. Display status dashboard
+6. Continue from current state (invoke appropriate phase logic)

@@ -6,7 +6,9 @@ Now I have all the information needed. Let me produce the comprehensive design.
 
 ## 1. Plugin Directory Structure
 
-The spec-forge repository serves a dual purpose: it is both the distributable Claude Code plugin AND the central task documentation hub. The plugin code lives at the root; task data lives under `/tasks/`. When a service repo installs spec-forge as a plugin, Claude Code copies the plugin components (agents, skills, commands, hooks, scripts) to its cache. The `/tasks/` directory is only meaningful in the central spec-forge repo itself -- it is never copied to service repos.
+The spec-forge repository is the distributable Claude Code plugin. The plugin code lives at the root. When a service repo installs spec-forge as a plugin, Claude Code copies the plugin components (agents, skills, commands, hooks, scripts) to its cache.
+
+All runtime output (task state, specs, research, architecture docs, codebase maps, etc.) is written to `.ai-workflow/` at the **central workspace root** — the parent folder that holds all service repos of the microservice system. This folder is NOT inside spec-forge or any individual service repo.
 
 ```
 spec-forge/
@@ -83,40 +85,51 @@ spec-forge/
 ├── LICENSE
 ├── CHANGELOG.md
 │
-└── tasks/                            # TASK HUB — only in central spec-forge repo
-    └── .gitkeep
+└── tasks/                            # BUILD TASKS — plugin implementation specs only
+    └── *.md                          # Task specs for building spec-forge itself
 ```
 
-When a task is created, the `/tasks/<task-id>/` subtree is populated:
+All runtime output lives at the **central workspace root** in `.ai-workflow/`:
 
 ```
-tasks/
-└── SF-042-user-auth-refactor/
-    ├── spec.md                       # The requirement specification
-    ├── research.md                   # Codebase research findings
-    ├── external-research.md          # External tech research findings
-    ├── architecture.md               # Solution architecture
-    ├── plan.md                       # Phased implementation plan
-    ├── state.yaml                    # Source of truth for task state
-    ├── services/                     # Per-service tracking
-    │   ├── api-gateway.yaml          # State for this service's work
-    │   └── user-service.yaml         # State for this service's work
-    ├── phases/
-    │   ├── 01-database-migration/
-    │   │   ├── CONTEXT.md            # What this phase needs to know
-    │   │   ├── PLAN.md               # Detailed implementation steps
-    │   │   ├── VERIFICATION.md       # Verification results
-    │   │   └── RESULT.md             # What was accomplished
-    │   ├── 02-model-layer/
-    │   │   ├── CONTEXT.md
-    │   │   ├── PLAN.md
-    │   │   ├── VERIFICATION.md
-    │   │   └── RESULT.md
-    │   └── 03-api-endpoints/
-    │       └── ...
-    └── logs/
-        ├── 2026-04-03-session-1.md   # Session activity log
-        └── 2026-04-03-session-2.md   # Session activity log
+<workspace-root>/                     # Parent folder holding all service repos
+├── .ai-workflow/                     # ALL plugin runtime output
+│   ├── codebase/                     # Codebase map output (forge:map-codebase)
+│   │   ├── index.md
+│   │   ├── stack.md
+│   │   ├── integration.md
+│   │   ├── architecture.md
+│   │   └── structure.md
+│   └── tasks/                        # Per-task runtime artifacts
+│       └── SF-042-user-auth-refactor/
+│           ├── spec.md               # The requirement specification
+│           ├── research.md           # Codebase research findings
+│           ├── external-research.md  # External tech research findings
+│           ├── architecture.md       # Solution architecture
+│           ├── plan.md               # Phased implementation plan
+│           ├── state.yaml            # Source of truth for task state
+│           ├── services/             # Per-service tracking
+│           │   ├── api-gateway.yaml
+│           │   └── user-service.yaml
+│           ├── phases/
+│           │   ├── 01-database-migration/
+│           │   │   ├── CONTEXT.md
+│           │   │   ├── PLAN.md
+│           │   │   ├── VERIFICATION.md
+│           │   │   └── RESULT.md
+│           │   ├── 02-model-layer/
+│           │   │   ├── CONTEXT.md
+│           │   │   ├── PLAN.md
+│           │   │   ├── VERIFICATION.md
+│           │   │   └── RESULT.md
+│           │   └── 03-api-endpoints/
+│           │       └── ...
+│           └── logs/
+│               ├── 2026-04-03-session-1.md
+│               └── 2026-04-03-session-2.md
+├── user-service/                     # Service repo
+├── api-gateway/                      # Service repo
+└── ...
 ```
 
 ---
@@ -569,7 +582,7 @@ Valid transitions and the commands that trigger them:
 
 When a session starts (or `/forge resume` is invoked):
 
-1. Read `state.yaml` — determine `status`, `current_phase`, `current_step`
+1. Read `state.yaml` from `<workspace_root>/.ai-workflow/tasks/<task-id>/` — determine `status`, `current_phase`, `current_step`
 2. Based on status, load ONLY the relevant documents:
 
 | Status | Documents Loaded |
@@ -626,8 +639,8 @@ at approval gates.
 ## Step 1: Initialize
 
 1. Parse arguments from: $ARGUMENTS
-2. Generate task ID: SF-<NNN> (read tasks/ dir to find next number)
-3. Create task directory structure using the init-task script
+2. Generate task ID: SF-<NNN> (read .ai-workflow/tasks/ dir to find next number)
+3. Create task directory structure using the init-task script under .ai-workflow/tasks/
 4. Create initial state.yaml from template
 
 ## Step 2: Discovery
@@ -940,26 +953,27 @@ argument-hint: <task-name> [--source jira:KEY | linear:KEY | github:NUM]
 
 **Workflow**:
 1. Parse `$ARGUMENTS` for task name and optional source
-2. Scan `tasks/` directory to determine next task ID number
-3. Run `scripts/init-task.sh` to create directory structure
-4. Initialize `state.yaml` from template with status `discovery`
-5. If source provided, fetch and parse issue content
-6. Begin Discovery phase: understand the requirement
-7. Transition to Spec phase: generate `spec.md` using spec-generation skill
-8. Present spec to developer for approval
-9. On approval, transition to codebase-research
-10. Run codebase-research skill (parallel agents)
-11. Present research summary, transition to external-research
-12. Run external-research skill
-13. Present research, transition to architecture
-14. Run solution-architect agent (opus model)
-15. Present architecture to developer, wait for approval
-16. On approval, run phase-planner agent
-17. Present plan to developer, wait for approval
-18. On approval, transition to phase-execution, set current_phase to 1
-19. Begin first phase's discussion step
+2. Resolve `workspace_root` from forge.yaml config
+3. Scan `<workspace_root>/.ai-workflow/tasks/` to determine next task ID number
+4. Run `scripts/init-task.sh` to create directory structure under `<workspace_root>/.ai-workflow/tasks/`
+5. Initialize `state.yaml` from template with status `discovery`
+6. If source provided, fetch and parse issue content
+7. Begin Discovery phase: understand the requirement
+8. Transition to Spec phase: generate `spec.md` using spec-generation skill
+9. Present spec to developer for approval
+10. On approval, transition to codebase-research
+11. Run codebase-research skill (parallel agents)
+12. Present research summary, transition to external-research
+13. Run external-research skill
+14. Present research, transition to architecture
+15. Run solution-architect agent (opus model)
+16. Present architecture to developer, wait for approval
+17. On approval, run phase-planner agent
+18. Present plan to developer, wait for approval
+19. On approval, transition to phase-execution, set current_phase to 1
+20. Begin first phase's discussion step
 
-The command is long but each step is clearly delineated. Developer approval gates are at steps 8, 14, 16, and at every phase verification.
+The command is long but each step is clearly delineated. Developer approval gates are at steps 9, 16, 18, and at every phase verification.
 
 ### `/forge resume`
 
@@ -971,10 +985,11 @@ argument-hint: [task-id]
 ```
 
 **Workflow**:
-1. If task-id provided, look for `tasks/<task-id>*/state.yaml`
-2. If no task-id, scan all `tasks/*/state.yaml` for status != completed, show menu
-3. Run context-reconstruction skill
-4. Display status dashboard
+1. Resolve `workspace_root` from forge.yaml config
+2. If task-id provided, look for `<workspace_root>/.ai-workflow/tasks/<task-id>*/state.yaml`
+3. If no task-id, scan all `<workspace_root>/.ai-workflow/tasks/*/state.yaml` for status != completed, show menu
+4. Run context-reconstruction skill
+5. Display status dashboard
 5. Continue from current state (invoke appropriate phase logic)
 
 ### `/forge status`
@@ -1130,26 +1145,29 @@ The main conversation context (the orchestrating command) stays under ~10,000 to
 
 ### The Model
 
-The spec-forge repo is the **control plane**. Service repos are the **data plane**.
+The `.ai-workflow/` directory at the workspace root is the **control plane**. Service repos are the **data plane**. The spec-forge repo is the **plugin source** (code only, no runtime state).
 
 ```
-spec-forge repo (central)           service repos (per-service)
-┌─────────────────────┐            ┌──────────────────┐
-│ tasks/SF-042/        │            │ user-service/     │
-│   state.yaml        │◄──────────►│   (actual code)   │
-│   spec.md           │            │   forge.yaml      │
-│   architecture.md   │            └──────────────────┘
-│   plan.md           │            ┌──────────────────┐
-│   phases/           │            │ api-gateway/      │
-│   services/         │◄──────────►│   (actual code)   │
-│     user-service.yaml│           │   forge.yaml      │
-│     api-gateway.yaml │           └──────────────────┘
-└─────────────────────┘
+workspace root (central)
+┌─────────────────────────────┐
+│ .ai-workflow/                │
+│   codebase/                  │     service repos (per-service)
+│     index.md, stack.md, ...  │    ┌──────────────────┐
+│   tasks/SF-042/              │    │ user-service/      │
+│     state.yaml              │◄──►│   (actual code)   │
+│     spec.md                  │    │   forge.yaml      │
+│     architecture.md          │    └──────────────────┘
+│     plan.md                  │    ┌──────────────────┐
+│     phases/                  │    │ api-gateway/      │
+│     services/                │◄──►│   (actual code)   │
+│       user-service.yaml      │    │   forge.yaml      │
+│       api-gateway.yaml       │    └──────────────────┘
+└─────────────────────────────┘
 ```
 
 ### Per-Service State Tracking
 
-Each service involved in a task gets a file under `tasks/<task-id>/services/<service-name>.yaml`:
+Each service involved in a task gets a file under `<workspace_root>/.ai-workflow/tasks/<task-id>/services/<service-name>.yaml`:
 
 ```yaml
 service: user-service
@@ -1169,14 +1187,15 @@ files_modified:
 
 When a task spans multiple services, the developer workflow is:
 
-1. **In spec-forge repo**: Run `/forge new`, complete research/architecture/planning phases. These phases are repo-agnostic -- they read service repos but don't modify them.
+1. **In any service repo or the workspace root**: Run `/forge new`, complete research/architecture/planning phases. These phases are repo-agnostic -- they read service repos but don't modify them. All output goes to `<workspace_root>/.ai-workflow/tasks/`.
 
 2. **Switch to service repo**: For phase execution, the developer opens Claude Code in the relevant service repo (e.g., `cd ~/Workspace/services/user-service && claude`). The spec-forge plugin is installed in this repo. When Claude Code starts, the SessionStart hook:
    - Detects forge.yaml in the service repo
-   - Checks spec-forge tasks for active phases targeting this service
+   - Reads `workspace_root` to locate `.ai-workflow/`
+   - Checks `.ai-workflow/tasks/` for active phases targeting this service
    - Offers to resume
 
-3. **Implementation happens in the service repo**: All code changes, test runs, verification happen in the service repo's working directory. State updates are written back to the spec-forge repo's task directory.
+3. **Implementation happens in the service repo**: All code changes, test runs, verification happen in the service repo's working directory. State updates are written to `<workspace_root>/.ai-workflow/tasks/`.
 
 4. **Switch services**: When phase 2 (user-service) completes and phase 3 (api-gateway) begins, developer switches to the api-gateway repo. Same SessionStart hook fires.
 
@@ -1186,7 +1205,7 @@ Each service repo contains a `forge.yaml` that configures the plugin for that se
 
 ```yaml
 # forge.yaml — placed in each service repo root
-spec_forge_path: "/Users/sonnt/Workspace/dojo/spec-forge"
+workspace_root: "/Users/sonnt/Workspace/services"   # parent folder holding all service repos
 service_name: "user-service"
 framework: "laravel"                 # or "yii2"
 php_version: "8.2"
@@ -1255,8 +1274,8 @@ paths:
 This script:
 
 1. Looks for `forge.yaml` in the current working directory (the service repo)
-2. If found, reads `spec_forge_path` from it
-3. Scans `<spec_forge_path>/tasks/*/state.yaml` for tasks where:
+2. If found, reads `workspace_root` from it
+3. Scans `<workspace_root>/.ai-workflow/tasks/*/state.yaml` for tasks where:
    - `status` is not `completed` or `abandoned`
    - The current service is listed in `services`
 4. If active task(s) found, outputs JSON:
@@ -1270,7 +1289,7 @@ This script:
 }
 ```
 
-If no `forge.yaml` is found (user is in spec-forge repo itself), it scans all tasks directly.
+If no `forge.yaml` is found, the script walks up from cwd looking for a `.ai-workflow/` directory at the workspace root. If found, it scans all tasks directly.
 
 ---
 
@@ -1393,7 +1412,7 @@ agents:
 
 ```yaml
 # forge.yaml — placed in service repo root
-spec_forge_path: "/Users/sonnt/Workspace/dojo/spec-forge"
+workspace_root: "/Users/sonnt/Workspace/services"   # parent folder holding all service repos
 service_name: "user-service"
 framework: "laravel"
 php_version: "8.2"
@@ -1452,7 +1471,7 @@ Only the solution-architect agent uses Opus. Everything else uses Sonnet. This i
 | state.yaml corruption | Task state lost | state.yaml is committed to git; `git checkout -- state.yaml` restores |
 | Agent produces bad output | Phase document is malformed | Developer reviews and can regenerate with `/forge research` or manual edit |
 | Verification loop (tests keep failing) | Stuck in phase | `max_retries_on_verification_failure` config limits retries; `/forge next --force` bypasses |
-| spec-forge repo path changes | Service repos can't find tasks | Update `spec_forge_path` in service forge.yaml |
+| Workspace root path changes | Service repos can't find tasks | Update `workspace_root` in service forge.yaml |
 | Developer abandons task mid-way | Orphaned task state | Set status to `abandoned` manually or via future `/forge abandon` command |
 
 ### Limitations
@@ -1497,7 +1516,7 @@ The CLAUDE.md file loaded automatically for every session provides awareness of 
 
 This project uses spec-forge for spec-driven development. Key points:
 
-- Tasks are tracked in the spec-forge central repo under `/tasks/<task-id>/`
+- Tasks are tracked under `<workspace_root>/.ai-workflow/tasks/<task-id>/`
 - Each task follows a strict workflow: spec → research → architecture → planning → phased execution
 - State is persisted in `state.yaml` — this is the source of truth
 - Verification requires: phpunit, phpstan, pint, agent review, developer approval
@@ -1505,6 +1524,7 @@ This project uses spec-forge for spec-driven development. Key points:
 - Use `/forge resume` to continue a task after session break
 - Never skip phases. Never proceed without developer approval at gates.
 - When working in a service repo, check for `forge.yaml` in the repo root for service-specific configuration.
+- All plugin output lives in `.ai-workflow/` at the workspace root (the parent folder holding all service repos).
 ```
 
 ### AGENTS.md
@@ -1531,6 +1551,6 @@ All agents output structured markdown. The orchestrating command reads agent out
 
 - `/Users/sonnt/Workspace/dojo/spec-forge/commands/forge/new.md` — The primary command that orchestrates the entire task lifecycle from creation through all phases. This is the most complex file in the plugin and the one that defines the core workflow.
 - `/Users/sonnt/Workspace/dojo/spec-forge/agents/solution-architect.md` — The highest-leverage agent (uses opus model). Its output quality determines the success of every implementation phase downstream.
-- `/Users/sonnt/Workspace/dojo/spec-forge/hooks/detect-active-task.sh` — The SessionStart hook script that enables resumability. Without this, developers must manually remember and invoke resume. This script makes spec-forge "always on."
+- `/Users/sonnt/Workspace/dojo/spec-forge/hooks/detect-active-task.sh` — The SessionStart hook script that enables resumability. Scans `<workspace_root>/.ai-workflow/tasks/` for active tasks. Without this, developers must manually remember and invoke resume. This script makes spec-forge "always on."
 - `/Users/sonnt/Workspace/dojo/spec-forge/skills/verification/SKILL.md` — The verification skill that orchestrates the phpunit/phpstan/pint/review pipeline. This is the quality gate that prevents bad code from advancing.
 - `/Users/sonnt/Workspace/dojo/spec-forge/templates/state.yaml` — The state template that defines the complete state schema. Every other component reads and writes this format. Getting this schema right is foundational.

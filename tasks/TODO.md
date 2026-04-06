@@ -13,6 +13,8 @@
 | 02 | [CLAUDE.md & AGENTS.md](02-claude-md-agents-md.md) | Critical | 01 | [x] |
 | 03 | [forge.yaml config](03-forge-yaml-config.md) | Critical | 01 | [x] |
 | 04 | [State schema (templates/state.yaml)](04-state-schema.md) | Critical | 01 | [x] |
+| 04.1 | [Agent: codebase-mapper](04.1-agent-codebase-mapper.md) | High | 01 | [ ] |
+| 04.2 | [Command: forge:map-codebase](04.2-command-forge-map-codebase.md) | High | 04.1 | [ ] |
 | 05 | [Task init script](05-task-init-script.md) | Critical | 04 | [ ] |
 | 06 | [State management scripts](06-state-management-scripts.md) | High | 04 | [ ] |
 
@@ -79,14 +81,14 @@
 
 | Phase | Tasks | Critical | Status |
 |-------|-------|----------|--------|
-| 1. Foundation | 6 | 4 | Not started |
+| 1. Foundation | 8 | 4 | Not started |
 | 2. Templates | 2 | 0 | Not started |
 | 3. Agents | 7 | 1 | Not started |
 | 4. Skills | 5 | 1 | Not started |
 | 5. Commands | 9 | 2 | Not started |
 | 6. Hooks & Scripts | 2 | 0 | Not started |
 | 7. Polish | 2 | 0 | Not started |
-| **Total** | **33** | **8** | |
+| **Total** | **35** | **8** | |
 
 ## Recommended Build Order
 
@@ -94,11 +96,12 @@ Build in dependency order, not strictly by phase number:
 
 1. **01** Plugin scaffold (unlocks everything)
 2. **02, 03, 04** in parallel (CLAUDE.md, forge.yaml, state schema)
-3. **05, 06, 07, 08** in parallel (init script, state scripts, all templates)
-4. **09-15** all agents in parallel (no inter-dependencies)
-5. **29, 30** hooks & scripts (need forge.yaml + state schema)
-6. **16-20** skills (each depends on its matching agent)
-7. **23, 31** simple commands first (status, plan — just read state)
-8. **22, 24, 25, 26, 27, 28** medium commands
-9. **21** /forge new last (depends on almost everything)
-10. **32, 33** documentation and testing
+3. **04.1** codebase-mapper agent (unlocks 04.2)
+4. **04.2, 05, 06, 07, 08** in parallel (map-codebase command, init script, state scripts, templates)
+5. **09-15** all agents in parallel (no inter-dependencies)
+6. **29, 30** hooks & scripts (need forge.yaml + state schema)
+7. **16-20** skills (each depends on its matching agent)
+8. **23, 31** simple commands first (status, plan — just read state)
+9. **22, 24, 25, 26, 27, 28** medium commands
+10. **21** /forge new last (depends on almost everything)
+11. **32, 33** documentation and testing

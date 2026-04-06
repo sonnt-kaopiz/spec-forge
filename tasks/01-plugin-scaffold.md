@@ -19,7 +19,7 @@ Create the base plugin directory structure and metadata files.
   - `hooks/`
   - `scripts/`
   - `templates/`
-  - `tasks/.gitkeep`
+  - `tasks/` (build task specs for plugin development only)
 - [ ] `LICENSE` (MIT)
 - [ ] `.gitignore`
 
@@ -38,5 +38,6 @@ Create the base plugin directory structure and metadata files.
 
 ## Notes
 
-- The spec-forge repo is BOTH the plugin source AND the task documentation hub
-- `tasks/` directory is only meaningful in the central repo, not when installed as a plugin in service repos
+- The spec-forge repo is the plugin source only — no runtime output is stored here
+- `tasks/` in this repo holds build task specs for developing the plugin itself
+- All runtime output (task state, specs, research, etc.) goes to `<workspace_root>/.ai-workflow/` at the central workspace root

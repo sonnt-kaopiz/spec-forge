@@ -10,7 +10,7 @@ End-to-end testing of the complete workflow.
 
 ## Test Scenarios
 
-- [ ] `/forge new test-feature` — verify task directory created, state.yaml initialized
+- [ ] `/forge new test-feature` — verify task directory created under `<workspace_root>/.ai-workflow/tasks/`, state.yaml initialized
 - [ ] Full workflow walkthrough: new -> spec -> research -> architecture -> plan -> phase execution -> verify -> next -> complete
 - [ ] `/forge resume` — verify context reconstruction after session break
 - [ ] `/forge status` — verify dashboard displays correctly

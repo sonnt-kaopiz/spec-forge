@@ -18,7 +18,7 @@ Create the default forge.yaml configuration and the service repo template.
   - Phase execution settings (max retries, auto-fix style)
   - Agent configuration (researcher count, architect model, reviewer count)
 - [ ] `templates/forge-service.yaml` — template for service repos:
-  - `spec_forge_path`, `service_name`, `framework`, `php_version`
+  - `workspace_root`, `service_name`, `framework`, `php_version`
   - Override sections for verification and paths
 
 ## Notes
