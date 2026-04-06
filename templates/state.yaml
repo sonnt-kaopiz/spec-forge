@@ -1,12 +1,12 @@
 version: 1
 
 task:
-  id: ""
-  slug: ""
+  id: "{{TASK_ID}}"
+  slug: "{{TASK_SLUG}}"
   title: ""
   description: ""
-  created_at: ""
-  updated_at: ""
+  created_at: "{{CREATED_AT}}"
+  updated_at: "{{CREATED_AT}}"
   assignee: ""
   source: "manual"            # manual | jira:<KEY> | linear:<KEY> | github:<NUM>
   tags: []
@@ -24,7 +24,7 @@ current_step: "discussion"    # discussion | planning | implementation | verific
 services: []
   # - name: "service-name"
   #   repo: "git@github.com:team/service-name.git"
-  #   branch: "feature/<task-slug>"
+  #   branch: "feature/{{TASK_SLUG}}"
   #   status: "pending"       # pending | in-progress | completed | blocked
 
 # Implementation phases (populated during planning)
@@ -49,6 +49,6 @@ blockers: []
 
 # Session history
 session_log: []
-  # - session: "2026-04-03-session-1"
+  # - session: "{{CREATED_DATE}}-session-1"
   #   phases_worked: [1]
   #   duration_minutes: 0
