@@ -12,8 +12,8 @@ Thumbs.db
 *.tmp
 *.bak
 
-# Logs
-tasks/*/logs/*.md
+# Runtime output (should never land in this repo — ignore if it does)
+.ai-workflow/
 
 # State temp files
 state.yaml.tmp

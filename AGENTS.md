@@ -41,3 +41,13 @@ Spec-forge uses specialized agents for different workflow phases. All agents out
 - Rebuilds task context from documentation files on session resume
 - Reads state.yaml, loads only relevant docs for current phase
 - Output capped at 2000 tokens
+
+---
+
+### codebase-mapper (yellow, sonnet)
+- Utility agent — stateless, not part of the task workflow
+- Spawned by `forge:map-codebase`, one instance per service, all in parallel
+- Explores a single service root across all four domains in one pass: stack, integration, architecture, structure
+- Writes a structured raw-findings file directly to `output_path`
+- Returns `{ status, lines, path, service, reason? }` — status is `done`, `partial`, or `failed`
+- File is always written even on failure (stub content), so the orchestrator can rely on path existence

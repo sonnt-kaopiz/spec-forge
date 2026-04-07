@@ -59,6 +59,11 @@ Explore all four domains in a single pass. Each domain section below defines exa
 - Cache platform (Redis, Memcached, etc.)
 - Queue/messaging platform (Redis, SQS, RabbitMQ, Kafka, etc.)
 
+**DO NOT cover (these belong elsewhere):**
+- Outbound HTTP calls, queue connections, auth packages/mechanisms → Integration
+- This service's role in the broader system, bounded context, topology → Architecture
+- Directory layout, naming conventions, internal code patterns → Structure
+
 **Key files:** manifest files, lock files, `.env.example`, `config/`, `.nvmrc`, `.python-version`, `Dockerfile`, `docker-compose.yml`, `Makefile`
 
 ---
@@ -72,6 +77,11 @@ Explore all four domains in a single pass. Each domain section below defines exa
 - Authentication mechanisms: packages or middleware used (JWT, OAuth2, session-based, API keys), token types, auth guards
 - Third-party service integrations: payment gateways, email providers, cloud storage, analytics, etc.
 - Inbound API surface: route files or handlers that accept external calls (names and purposes only — no full route listings)
+
+**DO NOT cover (these belong elsewhere):**
+- Dependency package names, runtime/framework versions → Stack
+- Service role, domain ownership, system-level positioning → Architecture
+- Directory layout, naming conventions, internal code structure → Structure
 
 **Key files:** database config, queue/messaging config, auth config, migration files, job/worker files, event/message handler files, route files, `.env.example`
 
@@ -87,6 +97,11 @@ Explore all four domains in a single pass. Each domain section below defines exa
 - System-level data flow: what data enters (triggers, inputs), what exits (responses, published events), and to/from whom
 - Infer from: `README.md`, `docs/`, ADR files, service name, domain vocabulary in class/route/event/handler names
 
+**DO NOT cover (these belong elsewhere):**
+- Specific package names, dependency or runtime versions → Stack
+- Individual HTTP endpoint details, queue topic names, auth package specifics → Integration
+- Internal code patterns (MVC layers, DDD structure), directory trees, class naming → Structure
+
 **Key files:** `README.md`, `docs/`, ADR files, top-level source directory, route/handler files (names only), event/message files
 
 ---
@@ -100,6 +115,11 @@ Explore all four domains in a single pass. Each domain section below defines exa
 - Internal architectural patterns: MVC layers, service layer, repository pattern, DDD aggregates, hexagonal architecture — infer from actual names and directory names
 - Primary entry points: main route files, worker/consumer entry points, CLI entrypoints, app bootstrap files
 - Test structure: unit vs feature/integration vs e2e split, test naming conventions
+
+**DO NOT cover (these belong elsewhere):**
+- Which packages are used, runtime or framework version → Stack
+- How services communicate, auth flows, database connection details → Integration
+- Service role in system topology, domain ownership, cross-service data flow → Architecture
 
 **Key files:** repo root listing, source directory tree, route/handler files, test directories, config directory
 

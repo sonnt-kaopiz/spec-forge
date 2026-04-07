@@ -17,6 +17,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { parseYaml } = require('./state-yaml');
 
 // ---------------------------------------------------------------------------
 // Arguments
@@ -44,6 +45,22 @@ const forgeDir = path.resolve(__dirname, '..');
 const templatesDir = path.join(forgeDir, 'templates');
 
 // ---------------------------------------------------------------------------
+// Task prefix — read from forge.yaml; fall back to 'SF'
+// ---------------------------------------------------------------------------
+function getTaskPrefix() {
+  try {
+    const forgeYamlPath = path.join(forgeDir, 'forge.yaml');
+    const raw = fs.readFileSync(forgeYamlPath, 'utf8');
+    const config = parseYaml(raw);
+    return (config && config.task_prefix) ? String(config.task_prefix) : 'SF';
+  } catch {
+    return 'SF';
+  }
+}
+
+const prefix = getTaskPrefix();
+
+// ---------------------------------------------------------------------------
 // Auto-increment task ID
 // ---------------------------------------------------------------------------
 function getNextTaskId() {
@@ -52,7 +69,7 @@ function getNextTaskId() {
     for (const entry of fs.readdirSync(tasksDir)) {
       const full = path.join(tasksDir, entry);
       if (!fs.statSync(full).isDirectory()) continue;
-      const match = entry.match(/^SF-(\d+)/);
+      const match = entry.match(new RegExp('^' + prefix + '-(\\d+)'));
       if (match) {
         const num = parseInt(match[1], 10);
         if (num > max) max = num;
@@ -71,7 +88,7 @@ let taskId;
 if (fs.existsSync(tasksDir)) {
   const existing = fs.readdirSync(tasksDir).find((entry) => {
     const full = path.join(tasksDir, entry);
-    return fs.statSync(full).isDirectory() && new RegExp(`^SF-\\d+-${slug}$`).test(entry);
+    return fs.statSync(full).isDirectory() && new RegExp('^' + prefix + '-\\d+-' + slug + '$').test(entry);
   });
 
   if (existing) {
@@ -84,7 +101,7 @@ if (fs.existsSync(tasksDir)) {
 
 if (!taskDir) {
   const taskNum = getNextTaskId();
-  taskId = `SF-${String(taskNum).padStart(3, '0')}`;
+  taskId = `${prefix}-${String(taskNum).padStart(3, '0')}`;
   taskDir = path.join(tasksDir, `${taskId}-${slug}`);
 }
 
