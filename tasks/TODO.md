@@ -17,7 +17,7 @@
 | 04.1 | [Agent: codebase-mapper](04.1-agent-codebase-mapper.md) | High | 01 | [x] |
 | 04.2 | [Command: forge:map-codebase](04.2-command-forge-map-codebase.md) | High | 04.1 | [x] |
 | 05 | [Task init script](05-task-init-script.md) | Critical | 04 | [x] |
-| 06 | [State management scripts](06-state-management-scripts.md) | High | 04 | [ ] |
+| 06 | [State management scripts](06-state-management-scripts.md) | High | 04 | [x] |
 
 ## Phase 2: Templates
 
