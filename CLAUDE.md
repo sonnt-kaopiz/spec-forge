@@ -27,7 +27,7 @@ spec-forge/
 │
 ├── agents/ ...................... Subagent definitions (see AGENTS.md)
 ├── hooks/ ....................... Event-triggered actions (e.g., session start)
-├── scripts/ ..................... Shell scripts (verification, state management)
+├── scripts/ ..................... Node.js scripts (verification, state management)
 │
 ├── templates/
 │ ├── state.yaml ............... Template for per-task state tracking
@@ -50,7 +50,7 @@ See `tasks/TODO.md` for the full task list, dependency graph, and recommended bu
 - **Skills** (`skills/<name>/`): Reusable prompt-based capabilities. Each skill wraps an agent or a sequence of tool calls. Skills do NOT modify `state.yaml` directly.
 - **Agents** (`agents/<name>/`): Subagent definitions with specific models and tool access. See `AGENTS.md` for the full roster and their responsibilities.
 - **Hooks** (`hooks/`): Triggered automatically on events (e.g., session start). Used for context reconstruction.
-- **Scripts** (`scripts/`): Shell scripts for verification pipeline, task initialization, state file manipulation.
+- **Scripts** (`scripts/`): Node.js scripts for verification pipeline, task initialization, state file manipulation.
 
 ## Key Design Rules
 
@@ -65,5 +65,6 @@ See `tasks/TODO.md` for the full task list, dependency graph, and recommended bu
 - Task specs in `tasks/` describe what to build and acceptance criteria. Read the relevant task spec before implementing.
 - Follow the Claude Code plugin format: each command/skill/agent lives in its own subdirectory with a markdown prompt file.
 - Keep prompts self-contained — each prompt file should include all context the agent/skill needs without depending on CLAUDE.md being loaded.
-- When writing shell scripts, target bash with POSIX-compatible fallbacks. Scripts must work on macOS and Linux.
+- Standalone scripts in `scripts/` and `hooks/` are implemented as Node.js files (`.js`), using only built-in modules — no external npm dependencies. Inline shell commands (`mkdir`, `cp`, `mv`, etc.) in prompts remain as bash. Scripts must work on macOS and Linux.
+- Tests live in `tests/` as `.test.js` files using Node.js built-in test runner. Run them with `node --test tests/<name>.test.js`. Test helpers are in `tests/helpers/`.
 - Test commands manually by installing the plugin locally and running the slash commands.

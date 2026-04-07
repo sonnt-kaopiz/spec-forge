@@ -52,19 +52,19 @@ spec-forge/
 │   ├── verification/
 │   │   ├── SKILL.md
 │   │   └── scripts/
-│   │       └── run-verification.sh
+│   │       └── run-verification.js
 │   └── context-reconstruction/
 │       └── SKILL.md
 │
 ├── hooks/
 │   ├── hooks.json                    # SessionStart auto-detection hook
-│   └── detect-active-task.sh         # Script that checks for active task state
+│   └── detect-active-task.js         # Script that checks for active task state
 │
 ├── scripts/
-│   ├── verify-php.sh                 # Runs phpunit+phpstan+pint pipeline
-│   ├── init-task.sh                  # Creates task directory structure
-│   ├── read-state.sh                 # Reads and outputs state.yaml as JSON
-│   └── update-state.sh              # Atomic state.yaml updates
+│   ├── verify-php.js                 # Runs phpunit+phpstan+pint pipeline
+│   ├── init-task.js                  # Creates task directory structure
+│   ├── read-state.js                 # Reads and outputs state.yaml as JSON
+│   └── update-state.js              # Atomic state.yaml updates
 │
 ├── templates/
 │   ├── state.yaml                    # Template for new task state
@@ -601,7 +601,7 @@ When a session starts (or `/forge:resume` is invoked):
 
 ### Atomic State Updates
 
-State updates happen through a script (`scripts/update-state.sh`) that:
+State updates happen through a script (`scripts/update-state.js`) that:
 1. Reads current state.yaml
 2. Applies the update (field path + new value)
 3. Writes atomically (write to temp, rename)
@@ -920,7 +920,7 @@ description: >
 ---
 ```
 
-**Body content**: Step-by-step verification pipeline instructions. Run `scripts/verify-php.sh` which executes phpunit, phpstan, pint in sequence. If any fail, stop and report. If all pass, launch `code-reviewer` agent. Present consolidated results to developer for approval. Record results in VERIFICATION.md.
+**Body content**: Step-by-step verification pipeline instructions. Run `scripts/verify-php.js` which executes phpunit, phpstan, pint in sequence. If any fail, stop and report. If all pass, launch `code-reviewer` agent. Present consolidated results to developer for approval. Record results in VERIFICATION.md.
 
 ### Skill 5: context-reconstruction
 
@@ -955,7 +955,7 @@ argument-hint: <task-name> [--source jira:KEY | linear:KEY | github:NUM]
 1. Parse `$ARGUMENTS` for task name and optional source
 2. Resolve `workspace_root` from forge.yaml config
 3. Scan `<workspace_root>/.ai-workflow/tasks/` to determine next task ID number
-4. Run `scripts/init-task.sh` to create directory structure under `<workspace_root>/.ai-workflow/tasks/`
+4. Run `scripts/init-task.js` to create directory structure under `<workspace_root>/.ai-workflow/tasks/`
 5. Initialize `state.yaml` from template with status `discovery`
 6. If source provided, fetch and parse issue content
 7. Begin Discovery phase: understand the requirement
@@ -1247,7 +1247,7 @@ paths:
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/detect-active-task.sh",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/detect-active-task.js",
             "timeout": 10,
             "statusMessage": "Checking for active spec-forge tasks..."
           }
@@ -1258,7 +1258,7 @@ paths:
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/detect-active-task.sh",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/detect-active-task.js",
             "timeout": 10,
             "statusMessage": "Restoring spec-forge context..."
           }
@@ -1269,7 +1269,7 @@ paths:
 }
 ```
 
-### hooks/detect-active-task.sh
+### hooks/detect-active-task.js
 
 This script:
 
@@ -1304,7 +1304,7 @@ phpunit → phpstan → pint → agent review → developer approval
    report    report   re-run    developer decides
 ```
 
-### scripts/verify-php.sh
+### scripts/verify-php.js
 
 This script is invoked from the service repo working directory. It reads `forge.yaml` for configuration and accepts arguments for which tools to run.
 
@@ -1551,6 +1551,6 @@ All agents output structured markdown. The orchestrating command reads agent out
 
 - `/Users/sonnt/Workspace/dojo/spec-forge/commands/forge/new.md` — The primary command that orchestrates the entire task lifecycle from creation through all phases. This is the most complex file in the plugin and the one that defines the core workflow.
 - `/Users/sonnt/Workspace/dojo/spec-forge/agents/solution-architect.md` — The highest-leverage agent (uses opus model). Its output quality determines the success of every implementation phase downstream.
-- `/Users/sonnt/Workspace/dojo/spec-forge/hooks/detect-active-task.sh` — The SessionStart hook script that enables resumability. Scans `<workspace_root>/.ai-workflow/tasks/` for active tasks. Without this, developers must manually remember and invoke resume. This script makes spec-forge "always on."
+- `/Users/sonnt/Workspace/dojo/spec-forge/hooks/detect-active-task.js` — The SessionStart hook script that enables resumability. Scans `<workspace_root>/.ai-workflow/tasks/` for active tasks. Without this, developers must manually remember and invoke resume. This script makes spec-forge "always on."
 - `/Users/sonnt/Workspace/dojo/spec-forge/skills/verification/SKILL.md` — The verification skill that orchestrates the phpunit/phpstan/pint/review pipeline. This is the quality gate that prevents bad code from advancing.
 - `/Users/sonnt/Workspace/dojo/spec-forge/templates/state.yaml` — The state template that defines the complete state schema. Every other component reads and writes this format. Getting this schema right is foundational.

@@ -27,7 +27,7 @@ description: >
 
 **Behavior**:
 1. Read verification commands from the service's stack profile in forge.yaml (or forge-service.yaml overrides)
-2. Run `scripts/verify.sh` (test, analyze, format in sequence)
+2. Run `scripts/verify.js` (test, analyze, format in sequence)
 3. test/analyze failure -> STOP, report to developer
 4. format -> auto-fix and continue
 5. If all pass, launch 2-3 code-reviewer agents in parallel

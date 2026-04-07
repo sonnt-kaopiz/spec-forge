@@ -11,7 +11,7 @@ Create the verification pipeline script that works for any stack.
 
 ## Deliverables
 
-- [ ] `scripts/verify.sh`
+- [ ] `scripts/verify.js`
 
 ## Specification
 
@@ -38,4 +38,4 @@ Invoked from service repo working directory. Reads verification commands from th
 - Script reads commands from the resolved stack profile — it is language/framework agnostic
 - Agent code review is handled by the skill layer, not this script
 - Exit code: 0 = all pass, 1 = failures found
-- Must work on macOS and Linux (POSIX-compatible bash)
+- Must work on macOS and Linux

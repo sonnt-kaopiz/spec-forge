@@ -12,13 +12,13 @@ Create the SessionStart hook that auto-detects active tasks when Claude Code sta
 ## Deliverables
 
 - [ ] `hooks/hooks.json` — hook configuration (SessionStart on startup and resume)
-- [ ] `hooks/detect-active-task.sh` — detection script
+- [ ] `hooks/detect-active-task.js` — detection script
 
 ## Specification
 
-**hooks.json**: Triggers `detect-active-task.sh` on "startup" and "resume" matchers with 10s timeout.
+**hooks.json**: Triggers `detect-active-task.js` on "startup" and "resume" matchers with 10s timeout.
 
-**detect-active-task.sh** behavior:
+**detect-active-task.js** behavior:
 1. Look for `forge.yaml` in current working directory (service repo)
 2. If found, read `workspace_root` from it
 3. Scan `<workspace_root>/.ai-workflow/tasks/*/state.yaml` for active tasks targeting this service

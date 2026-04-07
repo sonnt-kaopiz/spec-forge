@@ -75,7 +75,7 @@ Spec-Forge sits between the developer and their service repositories. It reads c
 | **Commands** | Orchestrate workflow, gate developer approvals, transition states | Yes |
 | **Skills** | Wrap agents/tool sequences into reusable capabilities | No |
 | **Agents** | Perform focused analysis tasks, return structured markdown | No |
-| **Scripts** | Shell-level operations (init, verify, state manipulation) | Yes (via commands) |
+| **Scripts** | Node.js scripts (init, verify, state manipulation) | Yes (via commands) |
 | **Hooks** | Event-triggered automation (e.g., session start) | No (triggers skills) |
 
 ## Workflow Architecture
@@ -379,6 +379,6 @@ Each phase targets a specific service. The phase-planner agent orders phases by 
 | State persistence | YAML files on disk |
 | Configuration | YAML (forge.yaml, forge-service.yaml) |
 | Verification tools | Defined per stack profile (test / analyze / format) |
-| Shell scripts | Bash (POSIX-compatible) |
+| Shell scripts | Node.js (built-ins only) |
 | Supported stacks | Laravel, Yii2, Rails, Django, Express, Spring Boot, Go (extensible) |
 | Supported platforms | macOS, Linux |

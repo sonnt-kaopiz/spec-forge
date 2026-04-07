@@ -7,11 +7,11 @@
 
 ## Description
 
-Create the shell script that initializes a new task's directory structure.
+Create the Node.js script that initializes a new task's directory structure.
 
 ## Deliverables
 
-- [ ] `scripts/init-task.sh` — accepts task slug and workspace root, creates:
+- [ ] `scripts/init-task.js` — accepts task slug and workspace root, creates:
   ```
   <workspace_root>/.ai-workflow/tasks/<task-slug>/
   ├── spec.md          (from template)

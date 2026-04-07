@@ -24,7 +24,7 @@ argument-hint: <task-name> [--source jira:KEY | linear:KEY | github:NUM]
 1. Parse $ARGUMENTS for task name and optional source
 2. Resolve `workspace_root` from forge.yaml config
 3. Scan `<workspace_root>/.ai-workflow/tasks/` for next task ID number
-4. Run scripts/init-task.sh to create directory structure under `<workspace_root>/.ai-workflow/tasks/`
+4. Run scripts/init-task.js to create directory structure under `<workspace_root>/.ai-workflow/tasks/`
 5. Initialize state.yaml (status: discovery)
 6. If source provided, fetch and parse issue content
 7. Begin Discovery: understand the requirement
