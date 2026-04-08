@@ -30,7 +30,7 @@
 
 | # | Task | Priority | Depends | Status |
 |---|------|----------|---------|--------|
-| 09 | [Agent: codebase-researcher](09-agent-codebase-researcher.md) | High | 01 | [ ] |
+| 09 | [Agent: codebase-researcher](09-agent-codebase-researcher.md) | High | 01 | [x] |
 | 10 | [Agent: spec-writer](10-agent-spec-writer.md) | High | 01 | [ ] |
 | 11 | [Agent: external-researcher](11-agent-external-researcher.md) | High | 01 | [ ] |
 | 12 | [Agent: solution-architect](12-agent-solution-architect.md) | Critical | 01 | [ ] |

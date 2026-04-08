@@ -11,7 +11,7 @@ Create the codebase researcher agent that deeply analyzes existing service repos
 
 ## Deliverables
 
-- [ ] `agents/codebase-researcher.md`
+- [x] `agents/codebase-researcher.md`
 
 ## Specification
 
