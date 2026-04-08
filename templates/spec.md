@@ -1,5 +1,12 @@
 # Specification: {{TASK_TITLE}}
 
+<!--
+  Task ID: {{TASK_ID}}
+  Slug:    {{TASK_SLUG}}
+  Status:  Draft
+  Created: {{CREATED_AT}}
+-->
+
 **Task ID**: {{TASK_ID}}
 **Slug**: {{TASK_SLUG}}
 **Status**: Draft
@@ -7,50 +14,66 @@
 
 ---
 
-## Summary
+## Source
 
-<!-- One-paragraph description of what this task accomplishes -->
+<!-- Where this spec originated. Fill in all three fields. -->
 
-## Background
+- **Origin**: <!-- Jira AUTH-1234 | Manual | Interactive Q&A | linear:KEY | github:NUM -->
+- **Author**: <!-- who wrote or requested this task -->
+- **Date**: {{CREATED_DATE}}
 
-<!-- Context: why this is needed, what problem it solves -->
+## Problem Statement
+
+<!-- 2-3 sentences: what problem does this solve and why now. No solutions here — only the problem and its context. -->
 
 ## Requirements
 
 ### Functional Requirements
 
-- [ ] FR-1:
-- [ ] FR-2:
+<!-- What the system MUST/SHOULD do. Use RFC 2119 keywords (MUST, SHOULD, MAY). Number sequentially. -->
+
+1. [FR-1] The system MUST
+2. [FR-2] The system MUST
+3. [FR-3] The system SHOULD
 
 ### Non-Functional Requirements
 
-- [ ] NFR-1:
+<!-- Performance, security, reliability, compatibility, observability, etc. -->
 
-## Scope
-
-### In Scope
-
--
+1. [NFR-1]
+2. [NFR-2]
 
 ### Out of Scope
 
+<!-- Explicitly list items that are NOT part of this task to prevent scope creep. -->
+
+-
 -
 
 ## Acceptance Criteria
 
-- [ ] AC-1:
-- [ ] AC-2:
+<!-- Testable conditions in "When [condition], then [expected result]" form. These drive verification. -->
+
+- [ ] AC-1: When , then
+- [ ] AC-2: When , then
+
+## Constraints
+
+<!-- Technical, legal, or operational constraints the implementation must respect (language/framework versions, dependencies, compliance, deadlines). -->
+
+-
+-
 
 ## Open Questions
 
-<!-- Ambiguities to resolve before implementation -->
+<!-- Unresolved items from the spec generation phase. Must be closed before implementation begins. -->
 
-| # | Question | Owner | Resolution |
-|---|----------|-------|------------|
-| 1 | | | |
+-
+-
 
-## Related
+## Clarifications Log
 
-- **Source**: <!-- manual | jira:KEY | linear:KEY | github:NUM -->
-- **Related tasks**: <!-- SF-XXX -->
-- **Linked PRs**: <!-- PR links once created -->
+<!-- Record every Q&A exchange made while refining this spec. Append new entries; never delete. -->
+
+- Q:
+  A:

@@ -7,50 +7,27 @@
 
 ---
 
-## Phase Summary
+## Phase Overview
 
-| # | Phase Name | Service | Est. Duration | Status |
-|---|-----------|---------|--------------|--------|
-| 1 | | | 1-2 hours | pending |
+<!-- One row per phase. Keep phases small, sequential, and each scoped to a single service. -->
+
+| # | Phase | Service | Dependencies |
+|---|-------|---------|--------------|
+| 1 |       |         | None         |
+| 2 |       |         | Phase 1      |
+| 3 |       |         | Phase 2      |
 
 ---
 
 ## Phase 1: {{Phase Name}}
 
-**Service**: <!-- service-name -->
-**Branch**: `feature/{{TASK_SLUG}}`
-**Estimated Duration**: 1-2 hours
-**Dependencies**: <!-- none | Phase N -->
+<!-- One sub-section per phase. Keep it tight — deep context belongs in phases/<NN>/CONTEXT.md, not here. -->
 
-### Objective
-
-<!-- What this phase accomplishes -->
-
-### Deliverables
-
-- [ ]
-- [ ]
-
-### Context
-
-<!-- Key files, patterns, and constraints for the implementer -->
-
-**Key files to read first**:
--
-
-**Patterns to follow**:
--
-
-**Constraints**:
--
-
-### Verification
-
-- [ ] Tests pass: `<!-- test command -->`
-- [ ] Analysis clean: `<!-- analyze command -->`
-- [ ] Format clean: `<!-- format command -->`
-- [ ] Code review approved
+- **Service**: <!-- service-name from forge.yaml stack profile -->
+- **Goal**: <!-- One sentence: what this phase accomplishes and why it is a standalone unit -->
+- **Verification**: <!-- Concrete success criteria — e.g., "migration runs cleanly, rollback works, existing tests pass" -->
+- **Risk**: <!-- Risks specific to this phase and mitigation -->
 
 ---
 
-<!-- Repeat Phase block for each phase -->
+<!-- Repeat the Phase block above for each phase in the Phase Overview table. -->

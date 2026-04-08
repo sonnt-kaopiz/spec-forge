@@ -9,89 +9,83 @@
 
 ## Approach
 
-<!-- Single chosen approach — no option lists. State what will be built and why. -->
+<!--
+Single chosen approach — no option lists. Name the approach and give a 2-3
+sentence summary of what will be built and why this design was selected.
+The architect is decisive: pick ONE path and commit to it.
+-->
 
 ---
 
 ## Services Involved
 
-| Service | Role | Branch |
-|---------|------|--------|
-| | | `feature/{{TASK_SLUG}}` |
+<!--
+List each service affected by this change. For each, describe in one or two
+sentences what role it plays and what changes. Do not go into code-level
+detail — focus on responsibility and impact.
+-->
+
+- **{{service-name}}**: <!-- what this service does and what changes -->
+- **{{service-name}}**: <!-- what this service does and what changes -->
 
 ---
 
-## API Contracts
+## Data Flow
 
-### Endpoint: `METHOD /path`
+<!--
+Step-by-step walkthrough of the primary use case. Name the services/components
+involved at each hop. Cover the happy path first; note key error branches if
+they affect design. No code — describe behavior, not implementation.
+-->
 
-**Request**:
-```json
-{
-}
-```
-
-**Response `200`**:
-```json
-{
-}
-```
-
-**Error responses**: <!-- 400, 401, 404, 422, 500 -->
+1.
+2.
+3.
 
 ---
 
-## Database Changes
+## Cross-Service Impact
 
-### New Table / Collection: `table_name`
+<!--
+Describe how services interact across boundaries. Call out contracts that must
+stay stable and any coordinated deploys required.
+-->
 
-```sql
-CREATE TABLE table_name (
-  id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-### Migrations Required
-
--
+- **{{service-name}}**: <!-- what changes at the boundary -->
+- **{{service-name}}**: <!-- what changes at the boundary -->
 
 ---
-
-## Interfaces & Type Signatures
-
-```
-// Key interfaces, types, or abstract classes
-```
-
----
-
-## Component Interactions
-
-```
-ServiceA → ServiceB: description
-ServiceB → DB: description
-```
-
----
-
-## Security & Validation
-
--
-
-## Performance Considerations
-
--
 
 ## Testing Strategy
 
--
+<!--
+Describe the types of tests that verify this design works. Keep it high-level —
+what is being proven, not how to write the tests.
+-->
+
+- **Unit tests**: <!-- behaviors to verify within a service -->
+- **Integration tests**: <!-- cross-service or cross-component flows -->
+- **Migration tests**: <!-- if data migration is involved, how correctness is verified -->
 
 ---
 
-## Open Decisions
+## Rejected Alternatives
 
-<!-- Anything deferred to implementation phase -->
+<!--
+List approaches that were considered and explicitly rejected. Each entry
+should name the alternative and state the reason it was not chosen.
+-->
 
--
+- **{{Alternative A}}**: rejected because <!-- reason -->
+- **{{Alternative B}}**: rejected because <!-- reason -->
+
+---
+
+## Developer Approval
+
+<!--
+The architect presents this document; the developer must sign off before
+the planning phase begins.
+-->
+
+- [ ] Approved by: _____ on _____

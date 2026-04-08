@@ -23,7 +23,7 @@
 
 | # | Task | Priority | Depends | Status |
 |---|------|----------|---------|--------|
-| 07 | [Document templates](07-document-templates.md) | High | 01 | [ ] |
+| 07 | [Document templates](07-document-templates.md) | High | 01 | [x] |
 | 08 | [Phase templates](08-phase-templates.md) | High | 01 | [ ] |
 
 ## Phase 3: Agents

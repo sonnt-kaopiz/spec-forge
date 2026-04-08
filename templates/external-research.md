@@ -8,76 +8,67 @@
 
 ## Stack
 
-**Language**: <!-- e.g. PHP 8.2 -->
-**Framework**: <!-- e.g. Laravel 11 -->
-**Key Packages**: <!-- e.g. league/flysystem, spatie/laravel-permission -->
+<!-- Tailor the sections below to this stack. Replace meta-placeholders like [Framework], [Package], [Language] with concrete values. -->
+
+**Language**: <!-- e.g. PHP 8.2, Ruby 3.3, Python 3.12, Node.js 20, Go 1.22, Java 21 -->
+**Framework**: <!-- e.g. Laravel 11, Rails 7.1, Django 5, Express 4, Spring Boot 3, Gin -->
+**Key Packages**: <!-- e.g. primary libraries relevant to this task -->
 
 ---
 
-## Official Documentation
+## Technology References
 
-### Finding 1
+<!--
+Official docs for the target language, framework, and key packages relevant to this task.
+Create one sub-section per topic / area. Generalize the sub-section headings, e.g.:
+  ### [Framework] [Topic]         (e.g. "Laravel OAuth2 Implementation", "Django Caching Layer")
+  ### [Language] [Feature]        (e.g. "Go Context Cancellation")
+Each sub-section should follow the inner structure below.
+-->
 
-**Source**: [Title](URL)
+### [Framework/Area] [Topic]
 
-<!-- Key information extracted -->
+- **Official docs**: <!-- key points extracted from official documentation, with links -->
+  - [Title](URL) — <!-- what it covers -->
+- **Recommended approach**: <!-- chosen approach with reasoning -->
+- **Packages evaluated**:
 
-**Actionable guidance**:
-
--
-
----
-
-## Package / Library Research
-
-### Recommended Package(s)
-
-| Package | Version | Purpose | License |
-|---------|---------|---------|---------|
-| | | | |
-
-**Why this package**:
-
-**Installation**:
-```bash
-
-```
-
-**Basic usage**:
-```
-
-```
+  | Package | Version | Pros | Cons |
+  |---------|---------|------|------|
+  | <!-- pkg --> | <!-- ver --> | <!-- pros --> | <!-- cons --> |
 
 ---
 
-## Reference Implementations
+## Similar Implementations Studied
 
-<!-- Public repos, blog posts, or official examples showing the pattern -->
+<!--
+Bullet list of open-source projects, reference repos, or blog posts that solved a similar problem.
+For each, capture *how* they solved it and what can be reused or adapted.
+-->
 
-### Example 1
-
-**Source**: [Title](URL)
-
-**What it demonstrates**:
-
-**Adapted approach for this task**:
+- **[Open source project X](URL)**: <!-- how they solved a similar problem; what to borrow -->
+- **[Blog post Y](URL)**: <!-- relevant pattern; applicability to this task -->
 
 ---
 
-## Best Practices & Pitfalls
+## Best Practices
 
-### Best Practices
+<!--
+Numbered list of best practices to apply. Each item MUST include a source reference
+(official docs, reputable blog, book, or well-known project).
+-->
 
--
-
-### Common Pitfalls
-
--
+1. <!-- Practice 1 --> — Source: [Title](URL)
+2. <!-- Practice 2 --> — Source: [Title](URL)
 
 ---
 
-## Summary & Recommendations
+## Recommendations
 
-<!-- Concise actionable recommendations for the architect -->
+<!--
+Concrete, actionable recommendations for the architect. Each recommendation should include
+a short justification tying it back to the references, practices, or constraints above.
+-->
 
--
+- **[Recommendation 1]**: <!-- what to do --> — Justification: <!-- why -->
+- **[Recommendation 2]**: <!-- what to do --> — Justification: <!-- why -->
