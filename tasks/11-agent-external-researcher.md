@@ -11,7 +11,7 @@ Create the external researcher agent that researches official docs, packages, an
 
 ## Deliverables
 
-- [ ] `agents/external-researcher.md`
+- [x] `agents/external-researcher.md`
 
 ## Specification
 

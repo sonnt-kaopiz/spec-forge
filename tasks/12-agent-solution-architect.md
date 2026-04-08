@@ -11,7 +11,7 @@ Create the solution architect agent. This is the highest-leverage agent — uses
 
 ## Deliverables
 
-- [ ] `agents/solution-architect.md`
+- [x] `agents/solution-architect.md`
 
 ## Specification
 

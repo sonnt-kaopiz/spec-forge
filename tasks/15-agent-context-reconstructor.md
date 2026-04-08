@@ -11,7 +11,7 @@ Create the context reconstructor agent that rebuilds task context on session res
 
 ## Deliverables
 
-- [ ] `agents/context-reconstructor.md`
+- [x] `agents/context-reconstructor.md`
 
 ## Specification
 

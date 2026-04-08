@@ -11,7 +11,7 @@ Create the phase planner agent that breaks architecture into sequential implemen
 
 ## Deliverables
 
-- [ ] `agents/phase-planner.md`
+- [x] `agents/phase-planner.md`
 
 ## Specification
 

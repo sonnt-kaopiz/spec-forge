@@ -11,7 +11,7 @@ Create the spec writer agent that generates/validates requirement specifications
 
 ## Deliverables
 
-- [ ] `agents/spec-writer.md`
+- [x] `agents/spec-writer.md`
 
 ## Specification
 

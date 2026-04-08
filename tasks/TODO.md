@@ -31,12 +31,12 @@
 | # | Task | Priority | Depends | Status |
 |---|------|----------|---------|--------|
 | 09 | [Agent: codebase-researcher](09-agent-codebase-researcher.md) | High | 01 | [x] |
-| 10 | [Agent: spec-writer](10-agent-spec-writer.md) | High | 01 | [ ] |
-| 11 | [Agent: external-researcher](11-agent-external-researcher.md) | High | 01 | [ ] |
-| 12 | [Agent: solution-architect](12-agent-solution-architect.md) | Critical | 01 | [ ] |
-| 13 | [Agent: phase-planner](13-agent-phase-planner.md) | High | 01 | [ ] |
-| 14 | [Agent: code-reviewer](14-agent-code-reviewer.md) | High | 01 | [ ] |
-| 15 | [Agent: context-reconstructor](15-agent-context-reconstructor.md) | High | 04 | [ ] |
+| 10 | [Agent: spec-writer](10-agent-spec-writer.md) | High | 01 | [x] |
+| 11 | [Agent: external-researcher](11-agent-external-researcher.md) | High | 01 | [x] |
+| 12 | [Agent: solution-architect](12-agent-solution-architect.md) | Critical | 01 | [x] |
+| 13 | [Agent: phase-planner](13-agent-phase-planner.md) | High | 01 | [x] |
+| 14 | [Agent: code-reviewer](14-agent-code-reviewer.md) | High | 01 | [x] |
+| 15 | [Agent: context-reconstructor](15-agent-context-reconstructor.md) | High | 04 | [x] |
 
 ## Phase 4: Skills
 

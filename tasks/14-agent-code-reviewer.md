@@ -11,7 +11,7 @@ Create the code reviewer agent for code quality review.
 
 ## Deliverables
 
-- [ ] `agents/code-reviewer.md`
+- [x] `agents/code-reviewer.md`
 
 ## Specification
 
