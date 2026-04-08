@@ -11,7 +11,7 @@ Create the codebase research skill that orchestrates parallel codebase-researche
 
 ## Deliverables
 
-- [ ] `skills/codebase-research/SKILL.md`
+- [x] `skills/codebase-research/SKILL.md`
 
 ## Specification
 

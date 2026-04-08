@@ -42,7 +42,7 @@
 
 | # | Task | Priority | Depends | Status |
 |---|------|----------|---------|--------|
-| 16 | [Skill: codebase-research](16-skill-codebase-research.md) | High | 09 | [ ] |
+| 16 | [Skill: codebase-research](16-skill-codebase-research.md) | High | 09 | [x] |
 | 17 | [Skill: spec-generation](17-skill-spec-generation.md) | High | 10 | [ ] |
 | 18 | [Skill: external-research](18-skill-external-research.md) | High | 11 | [ ] |
 | 19 | [Skill: verification](19-skill-verification.md) | Critical | 14, 30 | [ ] |
