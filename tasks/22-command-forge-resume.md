@@ -11,7 +11,7 @@ Create the resume command that continues a task from saved state.
 
 ## Deliverables
 
-- [ ] `commands/forge/resume.md`
+- [x] `commands/forge/resume.md`
 
 ## Specification
 

@@ -11,9 +11,9 @@ Create the spec generation skill that handles all spec input sources.
 
 ## Deliverables
 
-- [ ] `skills/spec-generation/SKILL.md`
-- [ ] `skills/spec-generation/references/spec-template.md`
-- [ ] `skills/spec-generation/references/spec-examples.md`
+- [x] `skills/spec-generation/SKILL.md`
+- [x] `skills/spec-generation/references/spec-template.md`
+- [x] `skills/spec-generation/references/spec-examples.md`
 
 ## Specification
 

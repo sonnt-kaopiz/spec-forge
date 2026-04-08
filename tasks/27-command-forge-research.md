@@ -11,7 +11,7 @@ Create the standalone external research command.
 
 ## Deliverables
 
-- [ ] `commands/forge/research.md`
+- [x] `commands/forge/research.md`
 
 ## Specification
 

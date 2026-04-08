@@ -11,7 +11,7 @@ Create the command that displays or regenerates the implementation plan.
 
 ## Deliverables
 
-- [ ] `commands/forge/plan.md`
+- [x] `commands/forge/plan.md`
 
 ## Specification
 

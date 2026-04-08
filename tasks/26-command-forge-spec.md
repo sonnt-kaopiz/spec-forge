@@ -11,7 +11,7 @@ Create the standalone spec generation/editing command.
 
 ## Deliverables
 
-- [ ] `commands/forge/spec.md`
+- [x] `commands/forge/spec.md`
 
 ## Specification
 

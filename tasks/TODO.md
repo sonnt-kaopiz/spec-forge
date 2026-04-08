@@ -43,24 +43,24 @@
 | # | Task | Priority | Depends | Status |
 |---|------|----------|---------|--------|
 | 16 | [Skill: codebase-research](16-skill-codebase-research.md) | High | 09 | [x] |
-| 17 | [Skill: spec-generation](17-skill-spec-generation.md) | High | 10 | [ ] |
-| 18 | [Skill: external-research](18-skill-external-research.md) | High | 11 | [ ] |
-| 19 | [Skill: verification](19-skill-verification.md) | Critical | 14, 30 | [ ] |
-| 20 | [Skill: context-reconstruction](20-skill-context-reconstruction.md) | High | 15 | [ ] |
+| 17 | [Skill: spec-generation](17-skill-spec-generation.md) | High | 10 | [x] |
+| 18 | [Skill: external-research](18-skill-external-research.md) | High | 11 | [x] |
+| 19 | [Skill: verification](19-skill-verification.md) | Critical | 14, 30 | [x] |
+| 20 | [Skill: context-reconstruction](20-skill-context-reconstruction.md) | High | 15 | [x] |
 
 ## Phase 5: Commands
 
 | # | Task | Priority | Depends | Status |
 |---|------|----------|---------|--------|
-| 21 | [/forge:new](21-command-forge-new.md) | Critical | 04,05,16,17,18,12,13 | [ ] |
-| 22 | [/forge:resume](22-command-forge-resume.md) | Critical | 04, 20 | [ ] |
-| 23 | [/forge:status](23-command-forge-status.md) | High | 04 | [ ] |
-| 24 | [/forge:next](24-command-forge-next.md) | High | 04, 08 | [ ] |
-| 25 | [/forge:verify](25-command-forge-verify.md) | High | 19 | [ ] |
-| 26 | [/forge:spec](26-command-forge-spec.md) | Medium | 17 | [ ] |
-| 27 | [/forge:research](27-command-forge-research.md) | Medium | 18 | [ ] |
-| 28 | [/forge:review](28-command-forge-review.md) | Medium | 14 | [ ] |
-| 31 | [/forge:plan](31-command-forge-plan.md) | Medium | 04 | [ ] |
+| 21 | [/forge:new](21-command-forge-new.md) | Critical | 04,05,16,17,18,12,13 | [x] |
+| 22 | [/forge:resume](22-command-forge-resume.md) | Critical | 04, 20 | [x] |
+| 23 | [/forge:status](23-command-forge-status.md) | High | 04 | [x] |
+| 24 | [/forge:next](24-command-forge-next.md) | High | 04, 08 | [x] |
+| 25 | [/forge:verify](25-command-forge-verify.md) | High | 19 | [x] |
+| 26 | [/forge:spec](26-command-forge-spec.md) | Medium | 17 | [x] |
+| 27 | [/forge:research](27-command-forge-research.md) | Medium | 18 | [x] |
+| 28 | [/forge:review](28-command-forge-review.md) | Medium | 14 | [x] |
+| 31 | [/forge:plan](31-command-forge-plan.md) | Medium | 04 | [x] |
 
 ## Phase 6: Hooks & Scripts
 

@@ -11,7 +11,7 @@ Create the standalone code review command.
 
 ## Deliverables
 
-- [ ] `commands/forge/review.md`
+- [x] `commands/forge/review.md`
 
 ## Specification
 

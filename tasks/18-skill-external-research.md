@@ -11,7 +11,7 @@ Create the external research skill for documentation and best practices research
 
 ## Deliverables
 
-- [ ] `skills/external-research/SKILL.md`
+- [x] `skills/external-research/SKILL.md`
 
 ## Specification
 

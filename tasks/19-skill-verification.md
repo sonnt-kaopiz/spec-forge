@@ -11,7 +11,7 @@ Create the verification skill that orchestrates the full verification pipeline f
 
 ## Deliverables
 
-- [ ] `skills/verification/SKILL.md`
+- [x] `skills/verification/SKILL.md`
 
 ## Specification
 

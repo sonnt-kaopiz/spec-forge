@@ -11,7 +11,7 @@ Create the command that advances to the next phase or step.
 
 ## Deliverables
 
-- [ ] `commands/forge/next.md`
+- [x] `commands/forge/next.md`
 
 ## Specification
 

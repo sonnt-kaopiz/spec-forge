@@ -11,7 +11,7 @@ Create the primary command that orchestrates the entire task lifecycle. This is 
 
 ## Deliverables
 
-- [ ] `commands/forge/new.md`
+- [x] `commands/forge/new.md`
 
 ## Specification
 

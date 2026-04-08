@@ -11,7 +11,7 @@ Create the status command that displays a task/phase dashboard.
 
 ## Deliverables
 
-- [ ] `commands/forge/status.md`
+- [x] `commands/forge/status.md`
 
 ## Specification
 

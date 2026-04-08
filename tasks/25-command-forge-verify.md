@@ -11,7 +11,7 @@ Create the command that runs the verification pipeline.
 
 ## Deliverables
 
-- [ ] `commands/forge/verify.md`
+- [x] `commands/forge/verify.md`
 
 ## Specification
 

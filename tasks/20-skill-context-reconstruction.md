@@ -11,7 +11,7 @@ Create the context reconstruction skill for resuming tasks after session breaks.
 
 ## Deliverables
 
-- [ ] `skills/context-reconstruction/SKILL.md`
+- [x] `skills/context-reconstruction/SKILL.md`
 
 ## Specification
 
