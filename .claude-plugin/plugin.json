@@ -6,5 +6,7 @@
     "name": "sonnt"
   },
   "license": "MIT",
-  "keywords": ["spec-driven", "workflow", "microservices", "multi-language", "agents", "verification"]
+  "keywords": ["spec-driven", "workflow", "microservices", "multi-language", "agents", "verification"],
+  "homepage": "https://github.com/sonnt-kaopiz/spec-forge#readme",
+  "repository": "https://github.com/sonnt-kaopiz/spec-forge"
 }

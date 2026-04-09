@@ -15,5 +15,8 @@ Thumbs.db
 # Runtime output (should never land in this repo — ignore if it does)
 .ai-workflow/
 
+# Cursor per-project plugin install (users should not commit this)
+.cursor/.spec-forge/
+
 # State temp files
 state.yaml.tmp

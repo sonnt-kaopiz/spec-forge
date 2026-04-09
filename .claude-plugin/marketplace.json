@@ -1,0 +1,20 @@
+{
+  "name": "spec-forge",
+  "owner": {
+    "name": "sonnt"
+  },
+  "metadata": {
+    "description": "Spec-driven development workflow for microservices — persistent state, stack-agnostic verification, and parallel agent research.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "spec-forge",
+      "source": "./",
+      "description": "Orchestrates spec-driven development with persistent state, parallel research agents, and stack-agnostic verification pipelines.",
+      "version": "1.0.0",
+      "license": "MIT",
+      "keywords": ["spec-driven", "workflow", "microservices", "multi-language", "agents", "verification"]
+    }
+  ]
+}
