@@ -73,7 +73,7 @@
 
 | # | Task | Priority | Depends | Status |
 |---|------|----------|---------|--------|
-| 32 | [README documentation](32-readme.md) | Medium | All | [ ] |
+| 32 | [README documentation](32-readme.md) | Medium | All | [x] |
 | 33 | [Integration testing](33-integration-testing.md) | Medium | All | [ ] |
 
 ---

@@ -11,7 +11,7 @@ Create comprehensive README.md for the plugin.
 
 ## Deliverables
 
-- [ ] `README.md` covering:
+- [x] `README.md` covering:
   - What spec-forge is and why
   - Installation instructions (as Claude Code plugin)
   - Quick start guide
