@@ -41,7 +41,7 @@ Claude Code auto-updates the plugin on startup. To update manually:
 Install into the current project with npx (no global install required, Node.js 18+ needed):
 
 ```bash
-npx spec-forge install
+npx @sonnt0411/spec-forge install
 ```
 
 This copies the plugin runtime into `.cursor/.spec-forge/` and drops 10 slash commands into `.cursor/commands/forge/`. Add `.cursor/.spec-forge/` to your `.gitignore`.
@@ -49,7 +49,7 @@ This copies the plugin runtime into `.cursor/.spec-forge/` and drops 10 slash co
 To upgrade when a new version is released:
 
 ```bash
-npx spec-forge@latest update
+npx @sonnt0411/spec-forge@latest update
 ```
 
 Open Cursor and type `/forge` to see the available commands.

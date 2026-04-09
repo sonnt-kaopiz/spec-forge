@@ -1,11 +1,11 @@
 {
-  "name": "spec-forge",
-  "version": "1.0.0",
+  "name": "@sonnt0411/spec-forge",
+  "version": "1.0.1",
   "description": "Spec-driven development workflow for microservices — Claude Code plugin and Cursor extension",
-  "author": "sonnt",
+  "author": "sonnt0411",
   "license": "MIT",
   "bin": {
-    "spec-forge": "./bin/cli.js"
+    "spec-forge": "bin/cli.js"
   },
   "files": [
     "bin/",
@@ -29,7 +29,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/sonnt-kaopiz/spec-forge"
+    "url": "git+https://github.com/sonnt-kaopiz/spec-forge.git"
   },
   "homepage": "https://github.com/sonnt-kaopiz/spec-forge#readme",
   "engines": {
