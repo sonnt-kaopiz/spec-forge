@@ -28,8 +28,10 @@ switch (command) {
 }
 
 function install(targetDir, { force } = {}) {
-  const specForgeDir = path.join(targetDir, '.cursor', '.spec-forge');
-  const cursorCommandsDir = path.join(targetDir, '.cursor', 'commands', 'forge');
+  const specForgeDir = path.join(targetDir, '.claude', '.spec-forge');
+  const claudeCommandsDir = path.join(targetDir, '.claude', 'commands', 'forge');
+  const claudeSkillsDir = path.join(targetDir, '.claude', 'skills');
+  const claudeAgentsDir = path.join(targetDir, '.claude', 'agents');
   const versionFile = path.join(specForgeDir, 'VERSION');
 
   if (!force && fs.existsSync(versionFile)) {
@@ -42,28 +44,41 @@ function install(targetDir, { force } = {}) {
 
   console.log(`Installing spec-forge ${VERSION} into ${targetDir}...`);
 
-  // Copy runtime files to .cursor/.spec-forge/
-  copyDir(path.join(PACKAGE_ROOT, 'commands', 'forge'), path.join(specForgeDir, 'commands', 'forge'));
-  copyDir(path.join(PACKAGE_ROOT, 'skills'), path.join(specForgeDir, 'skills'));
-  copyDir(path.join(PACKAGE_ROOT, 'agents'), path.join(specForgeDir, 'agents'));
+  // Runtime support files → .claude/.spec-forge/
   copyDir(path.join(PACKAGE_ROOT, 'scripts'), path.join(specForgeDir, 'scripts'));
   copyDir(path.join(PACKAGE_ROOT, 'templates'), path.join(specForgeDir, 'templates'));
   copyFile(path.join(PACKAGE_ROOT, 'forge.yaml'), path.join(specForgeDir, 'forge.yaml'));
   fs.writeFileSync(versionFile, VERSION + '\n');
 
-  // Copy Cursor command wrappers to .cursor/commands/forge/
-  copyDir(path.join(PACKAGE_ROOT, '.cursor', 'commands', 'forge'), cursorCommandsDir);
+  // Commands → .claude/commands/forge/ with <plugin_root> resolved
+  copyDirWithSubstitution(
+    path.join(PACKAGE_ROOT, 'commands', 'forge'),
+    claudeCommandsDir,
+    '<plugin_root>',
+    '.claude/.spec-forge'
+  );
+
+  // Skills → .claude/skills/ with <plugin_root> resolved
+  copyDirWithSubstitution(
+    path.join(PACKAGE_ROOT, 'skills'),
+    claudeSkillsDir,
+    '<plugin_root>',
+    '.claude/.spec-forge'
+  );
+
+  // Agents → .claude/agents/
+  copyDir(path.join(PACKAGE_ROOT, 'agents'), claudeAgentsDir);
 
   console.log(`\nspec-forge ${VERSION} installed.\n`);
   console.log('Next steps:');
-  console.log('  1. Add .cursor/.spec-forge/ to your .gitignore');
-  console.log('  2. Copy .cursor/.spec-forge/templates/forge-service.yaml to your service repo root and fill it in');
-  console.log('  3. Open Cursor and type /forge to see available commands');
+  console.log('  1. Add .claude/.spec-forge/ to your .gitignore');
+  console.log('  2. Copy .claude/.spec-forge/templates/forge-service.yaml to your service repo root and fill it in');
+  console.log('  3. Open Claude Code and type /forge to see available commands');
   console.log('  4. Run: npx spec-forge@latest update   to upgrade when a new version is released');
 }
 
 function update(targetDir, { force } = {}) {
-  const versionFile = path.join(targetDir, '.cursor', '.spec-forge', 'VERSION');
+  const versionFile = path.join(targetDir, '.claude', '.spec-forge', 'VERSION');
 
   if (!force && fs.existsSync(versionFile)) {
     const installed = fs.readFileSync(versionFile, 'utf8').trim();
@@ -81,7 +96,7 @@ function printHelp() {
   console.log(`spec-forge CLI v${VERSION}
 
 Usage:
-  npx spec-forge install         Install spec-forge for Cursor in the current project
+  npx spec-forge install         Install spec-forge for Claude Code in the current project
   npx spec-forge update          Update to the latest package version
   npx spec-forge version         Print the installed package version
 
@@ -107,4 +122,20 @@ function copyDir(src, dest) {
 function copyFile(src, dest) {
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.copyFileSync(src, dest);
+}
+
+function copyDirWithSubstitution(src, dest, find, replace) {
+  if (!fs.existsSync(src)) return;
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDirWithSubstitution(srcPath, destPath, find, replace);
+    } else {
+      const content = fs.readFileSync(srcPath, 'utf8');
+      fs.mkdirSync(path.dirname(destPath), { recursive: true });
+      fs.writeFileSync(destPath, content.split(find).join(replace));
+    }
+  }
 }

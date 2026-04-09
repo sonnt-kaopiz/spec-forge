@@ -19,32 +19,13 @@ Spec-Forge enforces a structured workflow:
 
 ## Installation
 
-Spec-Forge works in both **Claude Code** and **Cursor**. Pick your editor:
-
-### Claude Code (recommended)
-
-Install from the marketplace in two commands:
-
-```
-/plugin marketplace add sonnt-kaopiz/spec-forge
-/plugin install spec-forge@spec-forge
-```
-
-Claude Code auto-updates the plugin on startup. To update manually:
-
-```
-/plugin marketplace update spec-forge
-```
-
-### Cursor / cursor-agent
-
-Install into the current project with npx (no global install required, Node.js 18+ needed):
+Install into the current project with npx (Node.js 18+ required, no global install needed):
 
 ```bash
 npx @sonnt0411/spec-forge install
 ```
 
-This copies the plugin runtime into `.cursor/.spec-forge/` and drops 10 slash commands into `.cursor/commands/forge/`. Add `.cursor/.spec-forge/` to your `.gitignore`.
+This copies the plugin runtime into `.claude/.spec-forge/` and drops 10 slash commands into `.claude/commands/forge/`. Add `.claude/.spec-forge/` to your `.gitignore`.
 
 To upgrade when a new version is released:
 
@@ -52,7 +33,7 @@ To upgrade when a new version is released:
 npx @sonnt0411/spec-forge@latest update
 ```
 
-Open Cursor and type `/forge` to see the available commands.
+Open Claude Code and type `/forge` to see the available commands.
 
 > The plugin has no npm dependencies. All scripts use Node.js built-ins and run on macOS and Linux.
 
