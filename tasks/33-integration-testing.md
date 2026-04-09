@@ -8,6 +8,11 @@
 
 End-to-end testing of the complete workflow.
 
+## Deliverables
+
+- [x] `tests/verify.test.js` — automated unit tests for verify.js (30 tests)
+- [x] `docs/integration-test-guide.md` — manual end-to-end test guide (8 scenarios)
+
 ## Test Scenarios
 
 - [ ] `/forge:new test-feature` — verify task directory created under `<workspace_root>/.ai-workflow/tasks/`, state.yaml initialized
