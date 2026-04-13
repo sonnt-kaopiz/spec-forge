@@ -45,11 +45,11 @@ const forgeDir = path.resolve(__dirname, '..');
 const templatesDir = path.join(forgeDir, 'templates');
 
 // ---------------------------------------------------------------------------
-// Task prefix — read from forge.yaml; fall back to 'SF'
+// Task prefix — read from <workspaceRoot>/.ai-workflow/forge.yaml; fall back to 'SF'
 // ---------------------------------------------------------------------------
 function getTaskPrefix() {
   try {
-    const forgeYamlPath = path.join(forgeDir, 'forge.yaml');
+    const forgeYamlPath = path.join(workspaceRoot, '.ai-workflow', 'forge.yaml');
     const raw = fs.readFileSync(forgeYamlPath, 'utf8');
     const config = parseYaml(raw);
     return (config && config.task_prefix) ? String(config.task_prefix) : 'SF';

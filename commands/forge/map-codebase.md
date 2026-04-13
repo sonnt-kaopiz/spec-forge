@@ -43,7 +43,7 @@ Report to the user: `Workspace root: <workspace_root>`
 
 ### 2a — Read Workspace-Level Documentation First
 
-Before scanning directories, list all files directly inside `workspace_root` (non-recursive). Review the listing and identify any files that may describe the system — for example: `README.md`, `README`, `ARCHITECTURE.md`, `OVERVIEW.md`, `docker-compose.yml`, `docker-compose.yaml`, `docker-compose.override.yml`, `.env.example`, `Makefile`, `forge.yaml`, `forge-service.yaml`, or any `.md` file whose name suggests system documentation.
+Before scanning directories, list all files directly inside `workspace_root` (non-recursive). Review the listing and identify any files that may describe the system — for example: `README.md`, `README`, `ARCHITECTURE.md`, `OVERVIEW.md`, `docker-compose.yml`, `docker-compose.yaml`, `docker-compose.override.yml`, `.env.example`, `Makefile`, `forge-service.yaml`, or any `.md` file whose name suggests system documentation. (Note: `forge.yaml` lives at `.ai-workflow/forge.yaml`, not the workspace root.)
 
 Do **not** use a fixed list of filenames to read — use your judgment based on what you see. Read only the files that appear likely to contain service names, service directories, or system topology. Skip files that appear to be changelogs, licenses, or unrelated configuration.
 
@@ -99,6 +99,26 @@ Ensure the following directory exists (create it if absent):
 ```
 
 Use the Bash tool to create it: `mkdir -p <workspace_root>/.ai-workflow/codebase/scouts/`
+
+### 3a — Copy `forge.yaml` to `.ai-workflow/`
+
+Copy the plugin's `forge.yaml` into the workspace's `.ai-workflow/` directory if it is not already present:
+
+```bash
+cp -n <plugin_root>/forge.yaml <workspace_root>/.ai-workflow/forge.yaml
+```
+
+(`-n` skips the copy if the destination already exists, preserving any local overrides.)
+
+### 3b — Add `forge.yaml` to `.gitignore`
+
+Check `<workspace_root>/.gitignore`. If the line `.ai-workflow/forge.yaml` is not already present, append it:
+
+```bash
+grep -qxF '.ai-workflow/forge.yaml' <workspace_root>/.gitignore 2>/dev/null || echo '.ai-workflow/forge.yaml' >> <workspace_root>/.gitignore
+```
+
+Report to the user: `✓ forge.yaml copied to .ai-workflow/ and added to .gitignore`
 
 ---
 

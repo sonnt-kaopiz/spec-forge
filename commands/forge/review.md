@@ -47,7 +47,7 @@ Split `$ARGUMENTS`. Extract:
 
 ## Step 4 — Resolve reviewer count and focus areas
 
-Read `<plugin_root>/forge.yaml > agents.reviewer_count` (default `2`). Allowed values: `2` or `3`.
+Read `<workspace_root>/.ai-workflow/forge.yaml > agents.reviewer_count` (default `2`). Allowed values: `2` or `3`.
 
 Focus area assignment:
 
@@ -56,7 +56,7 @@ Focus area assignment:
 | `2` | `correctness`, `conventions` |
 | `3` | `correctness`, `conventions`, `security` |
 
-If the developer wants a different mix (e.g. add `tests`), they can edit `forge.yaml > agents.reviewer_count` or run multiple `/forge:review` invocations — this command does not take a `--focus` flag yet.
+If the developer wants a different mix (e.g. add `tests`), they can edit `.ai-workflow/forge.yaml > agents.reviewer_count` or run multiple `/forge:review` invocations — this command does not take a `--focus` flag yet.
 
 ---
 

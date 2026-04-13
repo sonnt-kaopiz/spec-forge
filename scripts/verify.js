@@ -6,7 +6,7 @@
 //
 // Behaviour:
 //   - Reads forge-service.yaml in cwd to discover the service's stack profile.
-//   - Reads the central forge.yaml in the plugin root for stack profile defaults.
+//   - Reads the central forge.yaml from <workspace_root>/.ai-workflow/forge.yaml for stack profile defaults.
 //   - Resolves test/analyze/format commands by overlaying any
 //     forge-service.yaml > verification overrides on top of the stack profile.
 //   - Runs each step in order. Stops on test or analyze failure. Format
@@ -54,11 +54,10 @@ function readYamlFile(filePath) {
   return parseYaml(raw);
 }
 
-function loadForgeConfig() {
-  const pluginRoot = path.resolve(__dirname, '..');
-  const forgeYamlPath = path.join(pluginRoot, 'forge.yaml');
+function loadForgeConfig(workspaceRoot) {
+  const forgeYamlPath = path.join(workspaceRoot, '.ai-workflow', 'forge.yaml');
   const config = readYamlFile(forgeYamlPath);
-  if (!config) throw new Error(`forge.yaml not found at plugin root: ${forgeYamlPath}`);
+  if (!config) throw new Error(`forge.yaml not found at: ${forgeYamlPath}`);
   return config;
 }
 
@@ -327,8 +326,9 @@ function main() {
   const cwd = process.cwd();
   let report;
   try {
-    const forge = loadForgeConfig();
     const service = loadServiceConfig(cwd);
+    const workspaceRoot = service.workspace_root ? path.resolve(service.workspace_root) : cwd;
+    const forge = loadForgeConfig(workspaceRoot);
     const profile = resolveStackProfile(forge, service);
     report = runPipeline(scope, profile, cwd);
   } catch (err) {

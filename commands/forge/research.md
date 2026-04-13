@@ -64,7 +64,7 @@ For each service in `state.services[]`, construct a stack identity entry the ski
 
 Resolution order for each field:
 
-1. Read `<service.root>/forge-service.yaml`. If it has a `stack:` field, look up that profile in `<plugin_root>/forge.yaml`.
+1. Read `<service.root>/forge-service.yaml`. If it has a `stack:` field, look up that profile in `<workspace_root>/.ai-workflow/forge.yaml`.
 2. If no `forge-service.yaml`, use `service.stack_profile` from `state.services[]` to look up the profile.
 3. If neither is set, attempt to detect by scanning the manifest file in `service.root`:
    - `composer.json` → PHP / Laravel or Yii2

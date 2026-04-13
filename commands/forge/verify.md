@@ -56,7 +56,7 @@ Hold the current phase entry as `phase`. Compute:
 - `phase_number = state.current_phase`
 - `phase_dir = <task_dir>/phases/<NN>/` (two-digit zero-padded)
 - `service_name = phase.service`
-- Look up the service in `state.services[]` to get `service.root` (absolute path) and resolve `stack_profile`. Resolution order: `service.stack_profile` if set, else read `<service.root>/forge-service.yaml` `stack` field, else fall back to the global default in `forge.yaml`.
+- Look up the service in `state.services[]` to get `service.root` (absolute path) and resolve `stack_profile`. Resolution order: `service.stack_profile` if set, else read `<service.root>/forge-service.yaml` `stack` field, else fall back to the global default in `<workspace_root>/.ai-workflow/forge.yaml`.
 
 If `phase_dir` does not exist, create it: `mkdir -p <phase_dir>`.
 
@@ -84,7 +84,7 @@ Call the `verification` skill with these inputs:
 - `research_path` ← `<task_dir>/research.md`
 - `diff_command` ← from Step 4
 - `pipeline_scope` ← from Step 1 (`all`, `test-only`, `analyze-only`, `format-only`)
-- `reviewer_count` ← read from `<plugin_root>/forge.yaml` `agents.reviewer_count` (default `2`)
+- `reviewer_count` ← read from `<workspace_root>/.ai-workflow/forge.yaml` `agents.reviewer_count` (default `2`)
 
 **Special case for `--review-only`**: the skill itself does not have a `review-only` mode. Implement it here by:
 1. Skipping the `verification` skill's pipeline step entirely.

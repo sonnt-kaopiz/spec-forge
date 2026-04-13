@@ -297,7 +297,7 @@ Read these files once and pass their full contents:
 - `spec` ← `<task_dir>/spec.md`
 - `research` ← `<task_dir>/research.md`
 - `external_research` ← `<task_dir>/external-research.md`
-- `services[]` ← `state.services[]` with `{ name, root, stack_profile }`. Resolve each `stack_profile` from `<service.root>/forge-service.yaml` or fall back to the plugin's `forge.yaml`.
+- `services[]` ← `state.services[]` with `{ name, root, stack_profile }`. Resolve each `stack_profile` from `<service.root>/forge-service.yaml` or fall back to `<workspace_root>/.ai-workflow/forge.yaml`.
 
 Spawn one `solution-architect` agent with the inputs above. The agent runs on Opus per its frontmatter.
 
