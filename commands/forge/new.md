@@ -21,17 +21,85 @@ The orchestrator updates `state.yaml` at every status transition using `scripts/
 
 ---
 
-## Step 1 — Parse `$ARGUMENTS`
+## Step 1 — Parse `$ARGUMENTS` and collect missing inputs
+
+### 1a — Parse arguments
 
 Split `$ARGUMENTS`. Extract:
 
-- `task_slug` — the first positional token. Must match `^[a-z0-9][a-z0-9-]*[a-z0-9]$`. If missing or invalid:
+- `task_slug` — the first positional token (if present). Must match `^[a-z0-9][a-z0-9-]*[a-z0-9]$` when provided.
+- `source` — value following `--source` (if present). Must match `^(jira|linear|github):.+$`. If `--source` is present without a value, refuse:
   ```
   Usage: /forge:new <task-slug> [--source jira:KEY | linear:KEY | github:NUM]
-  Slug must be lowercase letters, digits, and hyphens (e.g. add-user-notifications).
+  --source requires a value, e.g. --source jira:PROJ-123
   ```
   Stop.
-- `source` — value following `--source`. Must match `^(jira|linear|github):.+$`. If `--source` is present without a value, refuse with the usage line above.
+
+### 1b — Ask for missing source
+
+If `source` was not provided, use `AskUserQuestion` to confirm the task source:
+
+```
+Question: "Where is this task coming from?"
+Options:
+  - manual     → Task description will be entered manually
+  - jira       → Fetch from a Jira issue (you will provide the key)
+  - linear     → Fetch from a Linear issue (you will provide the key)
+  - github     → Fetch from a GitHub issue (you will provide the number)
+```
+
+If the user selects `jira`, `linear`, or `github`, ask a follow-up `AskUserQuestion`:
+
+```
+Question: "Enter the <Jira|Linear> issue key (e.g. PROJ-123):"   [for jira/linear]
+          "Enter the GitHub issue number (e.g. 42):"              [for github]
+```
+
+Compose `source` as `<type>:<key>` (e.g. `jira:PROJ-123`, `github:42`). If the user selects `manual`, set `source = "manual"`.
+
+### 1c — Generate slug for manual source
+
+If `source` is `manual` and no `task_slug` was given in the arguments:
+
+1. Read `task_prefix` from `<plugin_root>/forge.yaml` (key `task_prefix`, e.g. `"SF"`). Lowercase it.
+2. Generate a 6-character random string from `[a-z0-9]`.
+3. Derive `short-description` (2–4 lowercase words joined by hyphens):
+   - If there is already enough task context to infer a description (e.g. from a `--source` payload already parsed), derive it from that.
+   - Otherwise, use `AskUserQuestion`:
+     ```
+     Question: "Provide a very short description for the task slug (2–4 words, e.g. add-user-notifications):"
+     ```
+   - Sanitise the answer: lowercase, replace spaces and underscores with hyphens, strip non-`[a-z0-9-]` characters, collapse consecutive hyphens.
+4. Compose: `<task_prefix_lower>-<random6>-<short-description>` (e.g. `sf-x3k9mq-add-user-notifications`).
+
+Hold the result as `task_slug`.
+
+### 1d — Ask for missing slug (tracker source)
+
+If `source` is a tracker (`jira`, `linear`, or `github`) and no `task_slug` was given, use `AskUserQuestion`:
+
+```
+Question: "Enter a task slug (lowercase letters, digits, and hyphens; e.g. add-user-notifications):"
+```
+
+Validate the answer against `^[a-z0-9][a-z0-9-]*[a-z0-9]$`. If it does not match, refuse:
+
+```
+Invalid slug. Slug must be lowercase letters, digits, and hyphens (e.g. add-user-notifications).
+```
+
+Stop.
+
+### 1e — Final validation
+
+Validate the final `task_slug` against `^[a-z0-9][a-z0-9-]*[a-z0-9]$`. If it still fails, print:
+
+```
+Usage: /forge:new <task-slug> [--source jira:KEY | linear:KEY | github:NUM]
+Slug must be lowercase letters, digits, and hyphens (e.g. add-user-notifications).
+```
+
+Stop.
 
 ---
 
@@ -86,10 +154,10 @@ If `source` was set in Step 1:
 
 - **`jira:<KEY>` / `linear:<KEY>`** — Spec-Forge has no credentials. Prompt the developer:
   ```
-  Paste the <Jira|Linear> issue body for <KEY> (end with a single line containing only "EOF"):
+  Paste the <Jira|Linear> issue body for <KEY> in your next message.
   ```
-  Read until `EOF`. Hold the content as `source_input`.
-- **`github:<NUM>`** — try `gh issue view <NUM> --json title,body --jq '.title + "\n\n" + .body'`. If `gh` succeeds, capture stdout as `source_input`. If `gh` fails or is missing, fall back to the paste-and-EOF prompt with the github number.
+  Treat the developer's next freeform reply as `source_input`.
+- **`github:<NUM>`** — try `gh issue view <NUM> --json title,body --jq '.title + "\n\n" + .body'`. If `gh` succeeds, capture stdout as `source_input`. If `gh` fails or is missing, fall back to the same manual paste prompt with the github number.
 
 Update `state.task.source`:
 
@@ -107,11 +175,11 @@ Print:
 
 ```
 ─── Discovery ───
-Briefly describe the task in your own words (or skip with EOF if --source already covered it).
-End with a single line containing only "EOF":
+Briefly describe the task in your own words in your next message.
+If `--source` already covers it, reply with `skip`.
 ```
 
-Read the developer's input until `EOF`. Hold as `discovery_input`.
+Treat the developer's next reply as `discovery_input`. If the reply is exactly `skip`, set `discovery_input` to empty.
 
 If both `source_input` and `discovery_input` are empty, refuse:
 ```
@@ -171,7 +239,7 @@ Then prompt:
 ```
 
 - **`a`** → continue to Step 10.
-- **`r`** → ask: `Provide answers or additional context (end with a single line containing only "EOF"):`. Read the input. Re-invoke the `spec-generation` skill with `existing_spec=<current spec.md>` and `task_input=<the answers>` and `mode_override=refine`. Re-write `spec.md`. Loop back to the start of Step 9.
+- **`r`** → ask: `Provide answers or additional context in your next message:`. Treat the developer's next freeform reply as the refinement input. Re-invoke the `spec-generation` skill with `existing_spec=<current spec.md>` and `task_input=<the answers>` and `mode_override=refine`. Re-write `spec.md`. Loop back to the start of Step 9.
 - **`s`** → print: `Stopped at spec review. Run /forge:resume <task-id> when you are ready to continue.` Stop the command. The task is preserved on disk.
 
 The developer may iterate on `r` as many times as needed.
@@ -321,7 +389,7 @@ Prompt:
 ```
 
 - **`a`** → continue to Step 17.
-- **`r`** → ask: `What needs to change? (end with EOF):`. Append the developer's feedback to a refinement note and re-invoke the `solution-architect` agent with the same inputs PLUS a `feedback` parameter containing the new note (the agent prompt does not yet take this — pass it as part of `task_context` by appending `\n\nDeveloper feedback for revision: <note>` to the `spec` value before sending). Re-write `architecture.md`. Loop back to the start of Step 16.
+- **`r`** → ask: `What needs to change? Reply in your next message:`. Treat the developer's next freeform reply as the feedback. Append the developer's feedback to a refinement note and re-invoke the `solution-architect` agent with the same inputs PLUS a `feedback` parameter containing the new note (the agent prompt does not yet take this — pass it as part of `task_context` by appending `\n\nDeveloper feedback for revision: <note>` to the `spec` value before sending). Re-write `architecture.md`. Loop back to the start of Step 16.
 - **`s`** → save and stop.
 
 ---
@@ -469,4 +537,4 @@ Stop the command. The developer drives subsequent phases with `/forge:next` and 
 - **A skill returns its failure document** (e.g. `Status: Cannot draft ...`, `**Research could not run:** ...`) → write the file so the developer can inspect it, surface the failure to the developer, and stop. Do not advance the status.
 - **An agent returns a failure document** (e.g. `**Architecture cannot be produced.** ...`, `**Plan cannot be produced.** ...`) → write the file but do not transition. Print the failure and stop. The developer can re-run `/forge:resume`.
 - **Developer chooses `s` at any gate** → save and stop. The task is preserved with whatever status was reached. `/forge:resume <slug>` picks up exactly where it stopped.
-- **Developer never provides input at the discovery prompt** → handled in Step 6: refuse and stop.
+- **Developer skips discovery input without providing another source of context** → handled in Step 6: refuse and stop.
