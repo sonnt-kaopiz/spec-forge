@@ -1,101 +1,93 @@
 ---
+name: forge:new
 description: Create a new spec-forge task and walk it through discovery, spec, research, architecture, and planning
-argument-hint: <task-slug> [--source jira:KEY | linear:KEY | github:NUM]
+argument-hint: <task-slug>
+allowed_tools: Read, Bash, Write, Task, AskUserQuestion
 ---
 
 # forge:new
 
-Create a brand-new spec-forge task and drive it from `discovery` through `planning`. This is the longest command in the plugin: it orchestrates `init-task.js`, the `spec-generation`, `codebase-research`, and `external-research` skills, the `solution-architect` and `phase-planner` agents, and the developer approval gates between them.
+## Objective
 
-The command does not implement any phase code — it stops at the boundary of `phase-execution`. The developer continues with `/forge:next` and `/forge:verify` after planning is approved.
+Bootstrap a brand-new spec-forge task and drive it through every pre-implementation phase in one command:
+
+**Phases driven (in order):**
+`discovery` → `spec` → `codebase-research` → `external-research` → `architecture` → `planning` → `phase-execution`
+
+**Files created under `<workspace_root>/.ai-workflow/tasks/<task-id>-<slug>/`:**
+
+| File | Created by |
+|---|---|
+| `state.yaml` | `init-task.js` (seeded from template) |
+| `spec.md` | `spec-generation` skill |
+| `research.md` | `codebase-research` skill |
+| `external-research.md` | `external-research` skill |
+| `architecture.md` | `solution-architect` agent |
+| `plan.md` | `phase-planner` agent |
+| `phases/<NN>/CONTEXT.md` | `phase-planner` agent (one per phase) |
+
+**Developer approval gates:** spec (Step 9), architecture (Step 16), plan (Step 18).
+
+**What runs next:** The command stops at the start of Phase 1's discussion step. The developer continues with `/forge:next` (advance steps/phases) and `/forge:verify` (run verification after implementation).
+
+The orchestrator updates `state.yaml` at every status transition using `scripts/update-state.js`. Skills and agents never touch `state.yaml` directly.
 
 ---
 
-## Inputs and required state
+## Process
 
-- `$ARGUMENTS` — `<task-slug> [--source <type>:<key>]`
-- `workspace_root` — resolved at Step 2
-- `<plugin_root>` — the directory two levels above this file (`commands/forge/new.md`)
+### Step 1 — Parse `$ARGUMENTS` and resolve source
 
-The orchestrator updates `state.yaml` at every status transition using `scripts/update-state.js`. It never lets the agents/skills touch `state.yaml` directly.
-
----
-
-## Step 1 — Parse `$ARGUMENTS` and collect missing inputs
-
-### 1a — Parse arguments
+#### 1a — Parse arguments
 
 Split `$ARGUMENTS`. Extract:
 
-- `task_slug` — the first positional token (if present). Must match `^[a-zA-Z]+-[a-z0-9]+$` when provided.
-- `source` — value following `--source` (if present). Must match `^(jira|linear|github):.+$`. If `--source` is present without a value, refuse:
-  ```
-  Usage: /forge:new <task-slug> [--source jira:KEY | linear:KEY | github:NUM]
-  --source requires a value, e.g. --source jira:PROJ-123
-  ```
-  Stop.
+- `task_slug` — the first positional token (if present).
 
-### 1b — Ask for missing source
-
-If `source` was not provided, use `AskUserQuestion` to confirm the task source:
+No flags are accepted. If any unrecognised flag is present (e.g. `--source`), warn the user and stop:
 
 ```
-Question: "Where is this task coming from?"
-Options:
-  - manual     → Task description will be entered manually
-  - jira       → Fetch from a Jira issue (you will provide the key)
-  - linear     → Fetch from a Linear issue (you will provide the key)
-  - github     → Fetch from a GitHub issue (you will provide the number)
+The --source flag is no longer supported. Configure the task source in forge.yaml (task_source field).
+Usage: /forge:new <task-slug>
 ```
 
-If the user selects `jira`, `linear`, or `github`, ask a follow-up `AskUserQuestion`:
+#### 1b — Read global task_source
 
-```
-Question: "Enter the <Jira|Linear> issue key (e.g. PROJ-123):"   [for jira/linear]
-          "Enter the GitHub issue number (e.g. 42):"              [for github]
-```
+Read `task_source` from `<plugin_root>/forge.yaml` (top-level key `task_source`). Hold it as `configured_source`. Supported values: `manual`, `jira`, `linear`, `github`. If the key is missing, default to `manual`.
 
-Compose `source` as `<type>:<key>` (e.g. `jira:PROJ-123`, `github:42`). If the user selects `manual`, set `source = "manual"`.
+#### 1c — Slug was provided → use global config source, no questions
 
-### 1c — Generate slug for manual source
+When `task_slug` was given:
 
-If `source` is `manual` and no `task_slug` was given in the arguments:
+1. Validate against `^[a-zA-Z]+-[a-z0-9]+$`. If invalid, print usage and stop:
+   ```
+   Usage: /forge:new <task-slug>
+   Slug must match <letters>-<lowercase letters or digits> (e.g. task-123).
+   ```
+2. Set `source = configured_source` (the raw value from forge.yaml, e.g. `"jira"` or `"manual"`).  
+   No issue key is asked here — Step 5 will handle fetching content via the paste prompt.
 
-1. Read `task_prefix` from `<plugin_root>/forge.yaml` (key `task_prefix`, e.g. `"SF"`). Lowercase it.
-2. Generate a 6-character random string from `[a-z0-9]`.
-3. Derive `short-description` (2–4 words):
-   - If there is already enough task context to infer a description (e.g. from a `--source` payload already parsed), derive it from that.
-   - Otherwise, use `AskUserQuestion`:
+#### 1d — Slug was NOT provided → auto-generate slug, ask for issue key if needed
+
+When no `task_slug` was given:
+
+1. **Auto-generate the slug**: read `task_prefix` from forge.yaml, lowercase it, generate a 6-character random string from `[a-z0-9]`, compose `<prefix>-<random6>` (e.g. `sf-x3k9mq`). Hold as `task_slug`.
+
+2. **Resolve source**:
+   - If `configured_source` is `manual`: set `source = "manual"`. No questions needed.
+   - If `configured_source` is a tracker (`jira`, `linear`, or `github`): ask one follow-up via `AskUserQuestion`:
      ```
-     Question: "Provide a very short description for the task slug (2–4 words, e.g. add-user-notifications):"
+     Question: "Enter the <Jira|Linear> issue key (e.g. PROJ-123):"   [for jira/linear]
+               "Enter the GitHub issue number (e.g. 42):"              [for github]
      ```
-   - Sanitise the answer: lowercase, strip all non-`[a-z0-9]` characters.
-4. Compose: `<task_prefix_lower>-<random6><short-description>` (e.g. `sf-x3k9mqaddusernotifications`).
+     Compose `source = "<type>:<key>"` (e.g. `jira:PROJ-123`, `github:42`).
 
-Hold the result as `task_slug`.
-
-### 1d — Ask for missing slug (tracker source)
-
-If `source` is a tracker (`jira`, `linear`, or `github`) and no `task_slug` was given, use `AskUserQuestion`:
-
-```
-Question: "Enter a task slug (<letters>-<lowercase letters or digits>; e.g. task-123):"
-```
-
-Validate the answer against `^[a-zA-Z]+-[a-z0-9]+$`. If it does not match, refuse:
-
-```
-Invalid slug. Slug must match <letters>-<lowercase letters or digits> (e.g. task-123).
-```
-
-Stop.
-
-### 1e — Final validation
+#### 1e — Final validation
 
 Validate the final `task_slug` against `^[a-zA-Z]+-[a-z0-9]+$`. If it still fails, print:
 
 ```
-Usage: /forge:new <task-slug> [--source jira:KEY | linear:KEY | github:NUM]
+Usage: /forge:new <task-slug>
 Slug must match <letters>-<lowercase letters or digits> (e.g. task-123).
 ```
 
@@ -103,7 +95,7 @@ Stop.
 
 ---
 
-## Step 2 — Resolve workspace root
+### Step 2 — Resolve workspace root
 
 1. If `forge-service.yaml` exists in the current working directory, read it and extract `workspace_root`. Use that value.
 2. Otherwise, use the current working directory as `workspace_root`.
@@ -112,7 +104,7 @@ Print: `Workspace root: <workspace_root>`.
 
 ---
 
-## Step 3 — Initialise the task directory
+### Step 3 — Initialise the task directory
 
 Run `init-task.js` to scaffold the task. The script:
 
@@ -134,7 +126,7 @@ If the script exits non-zero, surface its stderr and stop.
 
 ---
 
-## Step 4 — Initialise state.yaml
+### Step 4 — Initialise state.yaml
 
 The init script seeds `state.yaml` from the template with `status: discovery` and the task ID/slug filled in. No update is needed at this point — the template is the initial state.
 
@@ -148,16 +140,33 @@ Hold the parsed object as `state`.
 
 ---
 
-## Step 5 — Fetch source content (if --source was provided)
+### Step 5 — Fetch source content (if source is a tracker)
 
-If `source` was set in Step 1:
+Branch on the `source` value resolved in Step 1:
 
-- **`jira:<KEY>` / `linear:<KEY>`** — Spec-Forge has no credentials. Prompt the developer:
+- **`jira` / `linear`** (bare type, no key — set when slug was provided in Step 1c):  
+  Ask via `AskUserQuestion`: `"Enter the <Jira|Linear> issue key (e.g. PROJ-123):"` and update `source = "<type>:<key>"`.  
+  Then prompt the developer:
   ```
   Paste the <Jira|Linear> issue body for <KEY> in your next message.
   ```
   Treat the developer's next freeform reply as `source_input`.
-- **`github:<NUM>`** — try `gh issue view <NUM> --json title,body --jq '.title + "\n\n" + .body'`. If `gh` succeeds, capture stdout as `source_input`. If `gh` fails or is missing, fall back to the same manual paste prompt with the github number.
+
+- **`jira:<KEY>` / `linear:<KEY>`** (key already known — set when slug was auto-generated in Step 1d):  
+  Spec-Forge has no credentials. Prompt the developer:
+  ```
+  Paste the <Jira|Linear> issue body for <KEY> in your next message.
+  ```
+  Treat the developer's next freeform reply as `source_input`.
+
+- **`github`** (bare type, no number — set when slug was provided in Step 1c):  
+  Ask via `AskUserQuestion`: `"Enter the GitHub issue number (e.g. 42):"` and update `source = "github:<num>"`.  
+  Then try `gh issue view <num> --json title,body --jq '.title + "\n\n" + .body'`. Capture stdout as `source_input` on success; on failure fall back to the paste prompt.
+
+- **`github:<NUM>`** (number already known — set when slug was auto-generated in Step 1d):  
+  Try `gh issue view <NUM> --json title,body --jq '.title + "\n\n" + .body'`. Capture stdout as `source_input` on success; on failure fall back to the paste prompt.
+
+- **`manual`** — skip `source_input` (set it to empty).
 
 Update `state.task.source`:
 
@@ -165,25 +174,23 @@ Update `state.task.source`:
 node <plugin_root>/scripts/update-state.js "<task_dir>" task.source "<source>" "<workspace_root>"
 ```
 
-If `source` was not set, leave `task.source` as the template default (`manual`) and skip `source_input` (set it to empty).
-
 ---
 
-## Step 6 — Discovery: capture the requirement
+### Step 6 — Discovery: capture the requirement
 
 Print:
 
 ```
 ─── Discovery ───
 Briefly describe the task in your own words in your next message.
-If `--source` already covers it, reply with `skip`.
+If the source content from Step 5 already covers it, reply with `skip`.
 ```
 
 Treat the developer's next reply as `discovery_input`. If the reply is exactly `skip`, set `discovery_input` to empty.
 
 If both `source_input` and `discovery_input` are empty, refuse:
 ```
-No input to draft from. Re-run /forge:new and provide a description or --source.
+No input to draft from. Re-run /forge:new and provide a description or configure task_source in forge.yaml.
 ```
 Stop. (The task directory already exists and is harmless — the developer can re-run.)
 
@@ -193,7 +200,7 @@ Combine the inputs into `task_input`:
 
 ---
 
-## Step 7 — Transition to spec status
+### Step 7 — Transition to spec status
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status spec "<workspace_root>"
@@ -203,7 +210,7 @@ Print: `Status: discovery → spec`.
 
 ---
 
-## Step 8 — Generate the spec
+### Step 8 — Generate the spec
 
 Invoke the `spec-generation` skill with:
 
@@ -220,7 +227,7 @@ Write the spec body to `<task_dir>/spec.md`. Hold the questions block as `clarif
 
 ---
 
-## Step 9 — GATE: spec approval
+### Step 9 — GATE: spec approval
 
 Print to the developer:
 
@@ -246,7 +253,7 @@ The developer may iterate on `r` as many times as needed.
 
 ---
 
-## Step 10 — Transition to codebase-research
+### Step 10 — Transition to codebase-research
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status codebase-research "<workspace_root>"
@@ -256,7 +263,7 @@ Print: `Status: spec → codebase-research`.
 
 ---
 
-## Step 11 — Run the codebase-research skill
+### Step 11 — Run the codebase-research skill
 
 Determine `services[]` for the skill. Resolution order:
 
@@ -287,7 +294,7 @@ The skill spawns 2–3 `codebase-researcher` agents in parallel and returns a me
 
 ---
 
-## Step 12 — Present research and transition
+### Step 12 — Present research and transition
 
 Print:
 
@@ -315,7 +322,7 @@ Print: `Status: codebase-research → external-research`.
 
 ---
 
-## Step 13 — Run the external-research skill
+### Step 13 — Run the external-research skill
 
 Build the `stacks[]` input following the rules in `/forge:research` Step 4 (read each service's `forge-service.yaml`, fall back to plugin profile, fall back to manifest detection). Drop entries with no resolvable language/framework and warn.
 
@@ -330,7 +337,7 @@ Write the returned markdown to `<task_dir>/external-research.md`, overwriting th
 
 ---
 
-## Step 14 — Present external research and transition
+### Step 14 — Present external research and transition
 
 Print:
 
@@ -358,7 +365,7 @@ Print: `Status: external-research → architecture`.
 
 ---
 
-## Step 15 — Run the solution-architect agent (Opus)
+### Step 15 — Run the solution-architect agent (Opus)
 
 Read these files once and pass their full contents:
 
@@ -373,7 +380,7 @@ The agent returns a single markdown document beginning with `# Architecture: <Ta
 
 ---
 
-## Step 16 — GATE: architecture approval
+### Step 16 — GATE: architecture approval
 
 Print:
 
@@ -394,7 +401,7 @@ Prompt:
 
 ---
 
-## Step 17 — Transition to planning and run phase-planner
+### Step 17 — Transition to planning and run phase-planner
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status planning "<workspace_root>"
@@ -416,7 +423,7 @@ The agent returns a response containing:
 2. The marker line `---PLAN-END---`
 3. One `---CONTEXT-PHASE-N---` block per phase, each followed by the CONTEXT.md skeleton
 
-### 17a — Persist plan and CONTEXT skeletons
+#### 17a — Persist plan and CONTEXT skeletons
 
 1. Split the response on `---PLAN-END---`. Write the first part to `<task_dir>/plan.md`, overwriting the template.
 2. Split the remainder on `---CONTEXT-PHASE-` markers. For each block:
@@ -424,7 +431,7 @@ The agent returns a response containing:
    - `mkdir -p <task_dir>/phases/<NN>/` (two-digit padded).
    - Write the block body to `<task_dir>/phases/<NN>/CONTEXT.md`, overwriting any existing file.
 
-### 17b — Populate state.phases[]
+#### 17b — Populate state.phases[]
 
 Parse the `Phase Overview` table from `plan.md`. For each row, build a phase entry:
 
@@ -452,7 +459,7 @@ If the planner returned an empty `Phase Overview` table, do not write `phases`. 
 
 ---
 
-## Step 18 — GATE: plan approval
+### Step 18 — GATE: plan approval
 
 Print:
 
@@ -473,7 +480,7 @@ Prompt:
 
 ---
 
-## Step 19 — Transition to phase-execution
+### Step 19 — Transition to phase-execution
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status phase-execution "<workspace_root>"
@@ -487,7 +494,7 @@ Print: `Status: planning → phase-execution. Phase 1 step: discussion.`
 
 ---
 
-## Step 20 — Begin phase 1 discussion
+### Step 20 — Begin phase 1 discussion
 
 Read `<task_dir>/phases/01/CONTEXT.md` (created in Step 17a). Print it to the developer:
 

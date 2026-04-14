@@ -3,6 +3,9 @@ version: 2
 # Task ID prefix
 task_prefix: "SF"
 
+# Default task source: manual | jira | linear | github
+task_source: manual
+
 # Stack profiles — define language, framework, paths, and verification commands.
 #
 # HOW TO ADD A CUSTOM PROFILE
