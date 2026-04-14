@@ -14,7 +14,7 @@ Bootstrap a brand-new spec-forge task and drive it through every pre-implementat
 **Phases driven (in order):**
 `discovery` → `spec` → `codebase-research` → `external-research` → `architecture` → `planning` → `phase-execution`
 
-**Files created under `<workspace_root>/.ai-workflow/tasks/<task-id>-<slug>/`:**
+**Files created under `<workspace_root>/.ai-workflow/tasks/<slug>/`:**
 
 | File | Created by |
 |---|---|
@@ -108,8 +108,7 @@ Print: `Workspace root: <workspace_root>`.
 
 Run `init-task.js` to scaffold the task. The script:
 
-- Auto-increments the task ID by scanning `<workspace_root>/.ai-workflow/tasks/`
-- Creates `<workspace_root>/.ai-workflow/tasks/<task-id>-<slug>/`
+- Creates `<workspace_root>/.ai-workflow/tasks/<slug>/`
 - Populates the directory from `templates/` (`spec.md`, `research.md`, `external-research.md`, `architecture.md`, `plan.md`, `state.yaml`)
 - Creates `services/`, `phases/`, and `logs/` subdirectories
 
@@ -117,10 +116,12 @@ Run `init-task.js` to scaffold the task. The script:
 node <plugin_root>/scripts/init-task.js "<task_slug>" "<workspace_root>"
 ```
 
-The script prints the created directory and assigned task ID. Parse them from stdout (the lines starting with `Task directory:` and `ID   :`). Hold:
+The script writes a single JSON object to stdout. Parse it and hold:
 
-- `task_dir` — absolute path to the new task directory
-- `task_id` — the assigned ID (e.g. `SF-007`)
+- `task_dir` ← `result.task_dir` — absolute path to the new task directory
+- `task_id` ← `result.task_id` — same value as `task_slug`
+- `task_slug` ← `result.task_slug`
+- `idempotent` ← `result.idempotent` — `true` if the directory already existed
 
 If the script exits non-zero, surface its stderr and stop.
 

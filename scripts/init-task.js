@@ -7,13 +7,16 @@
 //
 // Arguments:
 //   task-slug           Short kebab-case label (e.g. "add-user-notifications")
-//   --manual <desc>     Generate a slug as <task_prefix>-<random6>-<desc>
+//   --manual <desc>     Generate a slug as <task_prefix>-<random6><desc>
 //   workspace_root      Path to the service repo root. Defaults to process.cwd().
 //
 // Behaviour:
-//   - Auto-increments task ID by scanning existing SF-* directories
 //   - Idempotent: safe to run multiple times; never overwrites existing files
 //   - Creates all required subdirectories and populates files from templates
+//
+// Output:
+//   stdout — single JSON object: { task_dir, task_id, task_slug, idempotent }
+//   stderr — diagnostic/progress messages
 
 'use strict';
 
@@ -106,48 +109,30 @@ if (!/^[a-zA-Z]+-[a-z0-9]+$/.test(slug)) {
 }
 
 // ---------------------------------------------------------------------------
-// Auto-increment task ID
-// ---------------------------------------------------------------------------
-function getNextTaskId() {
-  let max = 0;
-  if (fs.existsSync(tasksDir)) {
-    for (const entry of fs.readdirSync(tasksDir)) {
-      const full = path.join(tasksDir, entry);
-      if (!fs.statSync(full).isDirectory()) continue;
-      const match = entry.match(new RegExp('^' + prefix + '-(\\d+)'));
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > max) max = num;
-      }
-    }
-  }
-  return max + 1;
-}
-
-// ---------------------------------------------------------------------------
-// Guard: if a directory for this slug already exists at any SF-* number, reuse it
+// Guard: if a directory for this slug already exists, reuse it
 // ---------------------------------------------------------------------------
 let taskDir;
 let taskId;
+let isIdempotent = false;
 
 if (fs.existsSync(tasksDir)) {
   const existing = fs.readdirSync(tasksDir).find((entry) => {
     const full = path.join(tasksDir, entry);
-    return fs.statSync(full).isDirectory() && new RegExp('^' + prefix + '-\\d+-' + slug + '$').test(entry);
+    return fs.statSync(full).isDirectory() && entry === slug;
   });
 
   if (existing) {
     taskDir = path.join(tasksDir, existing);
-    taskId = existing.match(/^(SF-\d+)/)[1];
-    console.log(`Task directory already exists: ${taskDir}`);
-    console.log('Ensuring all files and subdirectories are present (idempotent mode).');
+    taskId = slug;
+    isIdempotent = true;
+    process.stderr.write(`Task directory already exists: ${taskDir}\n`);
+    process.stderr.write('Ensuring all files and subdirectories are present (idempotent mode).\n');
   }
 }
 
 if (!taskDir) {
-  const taskNum = getNextTaskId();
-  taskId = `${prefix}-${String(taskNum).padStart(3, '0')}`;
-  taskDir = path.join(tasksDir, `${taskId}-${slug}`);
+  taskId = slug;
+  taskDir = path.join(tasksDir, slug);
 }
 
 const now = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
@@ -159,7 +144,7 @@ for (const sub of ['services', 'phases', 'logs']) {
   fs.mkdirSync(path.join(taskDir, sub), { recursive: true });
 }
 
-console.log(`Task directory: ${taskDir}`);
+process.stderr.write(`Task directory: ${taskDir}\n`);
 
 // ---------------------------------------------------------------------------
 // Helper: copy a template file if the destination does not already exist.
@@ -168,7 +153,7 @@ console.log(`Task directory: ${taskDir}`);
 // ---------------------------------------------------------------------------
 function installTemplate(templateFile, destFile) {
   if (fs.existsSync(destFile)) {
-    console.log(`  [skip]   ${destFile} (already exists)`);
+    process.stderr.write(`  [skip]   ${destFile} (already exists)\n`);
     return;
   }
 
@@ -187,7 +172,7 @@ function installTemplate(templateFile, destFile) {
     .replaceAll('{{CREATED_DATE}}', dateOnly);
 
   fs.writeFileSync(destFile, content);
-  console.log(`  [create] ${destFile}`);
+  process.stderr.write(`  [create] ${destFile}\n`);
 }
 
 // ---------------------------------------------------------------------------
@@ -201,12 +186,7 @@ installTemplate(path.join(templatesDir, 'plan.md'),               path.join(task
 installTemplate(path.join(templatesDir, 'state.yaml'),            path.join(taskDir, 'state.yaml'));
 
 // ---------------------------------------------------------------------------
-// Done
+// Done — emit JSON result to stdout
 // ---------------------------------------------------------------------------
-console.log('');
-console.log('Task initialised successfully.');
-console.log(`  ID   : ${taskId}`);
-console.log(`  Slug : ${slug}`);
-console.log(`  Dir  : ${taskDir}`);
-console.log('');
-console.log('Next step: fill in spec.md, then run /forge:spec to generate a full specification.');
+process.stderr.write('\nTask initialised successfully.\n');
+process.stdout.write(JSON.stringify({ task_dir: taskDir, task_id: taskId, task_slug: slug, idempotent: isIdempotent }) + '\n');
