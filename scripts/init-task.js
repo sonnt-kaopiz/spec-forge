@@ -3,10 +3,12 @@
 //
 // Usage:
 //   node init-task.js <task-slug> [workspace_root]
+//   node init-task.js --manual "<short-description>" [workspace_root]
 //
 // Arguments:
-//   task-slug       Short kebab-case label (e.g. "add-user-notifications")
-//   workspace_root  Path to the service repo root. Defaults to process.cwd().
+//   task-slug           Short kebab-case label (e.g. "add-user-notifications")
+//   --manual <desc>     Generate a slug as <task_prefix>-<random6>-<desc>
+//   workspace_root      Path to the service repo root. Defaults to process.cwd().
 //
 // Behaviour:
 //   - Auto-increments task ID by scanning existing SF-* directories
@@ -22,19 +24,39 @@ const { parseYaml } = require('./state-yaml');
 // ---------------------------------------------------------------------------
 // Arguments
 // ---------------------------------------------------------------------------
-const slug = process.argv[2] || '';
-const workspaceRoot = process.argv[3] || process.cwd();
+const args = process.argv.slice(2);
 
-if (!slug) {
-  process.stderr.write('Error: task-slug is required.\n');
-  process.stderr.write(`Usage: node ${path.basename(process.argv[1])} <task-slug> [workspace_root]\n`);
-  process.exit(1);
+function printUsage() {
+  const cmd = path.basename(process.argv[1]);
+  process.stderr.write(`Usage: node ${cmd} <task-slug> [workspace_root]\n`);
+  process.stderr.write(`   or: node ${cmd} --manual "<short-description>" [workspace_root]\n`);
 }
 
-// Validate slug — only lowercase letters, digits, hyphens
-if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$/.test(slug)) {
-  process.stderr.write('Error: task-slug must be lowercase letters, digits, and hyphens only (e.g. add-user-notifications).\n');
-  process.exit(1);
+function sanitizeDescription(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function randomString(length) {
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i += 1) {
+    result += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return result;
+}
+
+let slug = '';
+let workspaceRoot = process.cwd();
+let manualDescription = '';
+
+if (args[0] === '--manual') {
+  manualDescription = args[1] || '';
+  workspaceRoot = args[2] || process.cwd();
+} else {
+  slug = args[0] || '';
+  workspaceRoot = args[1] || process.cwd();
 }
 
 // ---------------------------------------------------------------------------
@@ -59,6 +81,29 @@ function getTaskPrefix() {
 }
 
 const prefix = getTaskPrefix();
+
+if (args[0] === '--manual') {
+  const shortDescription = sanitizeDescription(manualDescription);
+  if (!shortDescription) {
+    process.stderr.write('Error: manual slug generation requires a short description.\n');
+    printUsage();
+    process.exit(1);
+  }
+
+  slug = `${String(prefix).toLowerCase()}-${randomString(6)}${shortDescription}`;
+}
+
+if (!slug) {
+  process.stderr.write('Error: task-slug is required.\n');
+  printUsage();
+  process.exit(1);
+}
+
+// Validate slug — letters before hyphen, lowercase letters/digits after hyphen
+if (!/^[a-zA-Z]+-[a-z0-9]+$/.test(slug)) {
+  process.stderr.write('Error: task-slug must match <letters>-<lowercase letters or digits> (e.g. task-123).\n');
+  process.exit(1);
+}
 
 // ---------------------------------------------------------------------------
 // Auto-increment task ID

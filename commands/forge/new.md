@@ -27,7 +27,7 @@ The orchestrator updates `state.yaml` at every status transition using `scripts/
 
 Split `$ARGUMENTS`. Extract:
 
-- `task_slug` — the first positional token (if present). Must match `^[a-z0-9][a-z0-9-]*[a-z0-9]$` when provided.
+- `task_slug` — the first positional token (if present). Must match `^[a-zA-Z]+-[a-z0-9]+$` when provided.
 - `source` — value following `--source` (if present). Must match `^(jira|linear|github):.+$`. If `--source` is present without a value, refuse:
   ```
   Usage: /forge:new <task-slug> [--source jira:KEY | linear:KEY | github:NUM]
@@ -63,14 +63,14 @@ If `source` is `manual` and no `task_slug` was given in the arguments:
 
 1. Read `task_prefix` from `<plugin_root>/forge.yaml` (key `task_prefix`, e.g. `"SF"`). Lowercase it.
 2. Generate a 6-character random string from `[a-z0-9]`.
-3. Derive `short-description` (2–4 lowercase words joined by hyphens):
+3. Derive `short-description` (2–4 words):
    - If there is already enough task context to infer a description (e.g. from a `--source` payload already parsed), derive it from that.
    - Otherwise, use `AskUserQuestion`:
      ```
      Question: "Provide a very short description for the task slug (2–4 words, e.g. add-user-notifications):"
      ```
-   - Sanitise the answer: lowercase, replace spaces and underscores with hyphens, strip non-`[a-z0-9-]` characters, collapse consecutive hyphens.
-4. Compose: `<task_prefix_lower>-<random6>-<short-description>` (e.g. `sf-x3k9mq-add-user-notifications`).
+   - Sanitise the answer: lowercase, strip all non-`[a-z0-9]` characters.
+4. Compose: `<task_prefix_lower>-<random6><short-description>` (e.g. `sf-x3k9mqaddusernotifications`).
 
 Hold the result as `task_slug`.
 
@@ -79,24 +79,24 @@ Hold the result as `task_slug`.
 If `source` is a tracker (`jira`, `linear`, or `github`) and no `task_slug` was given, use `AskUserQuestion`:
 
 ```
-Question: "Enter a task slug (lowercase letters, digits, and hyphens; e.g. add-user-notifications):"
+Question: "Enter a task slug (<letters>-<lowercase letters or digits>; e.g. task-123):"
 ```
 
-Validate the answer against `^[a-z0-9][a-z0-9-]*[a-z0-9]$`. If it does not match, refuse:
+Validate the answer against `^[a-zA-Z]+-[a-z0-9]+$`. If it does not match, refuse:
 
 ```
-Invalid slug. Slug must be lowercase letters, digits, and hyphens (e.g. add-user-notifications).
+Invalid slug. Slug must match <letters>-<lowercase letters or digits> (e.g. task-123).
 ```
 
 Stop.
 
 ### 1e — Final validation
 
-Validate the final `task_slug` against `^[a-z0-9][a-z0-9-]*[a-z0-9]$`. If it still fails, print:
+Validate the final `task_slug` against `^[a-zA-Z]+-[a-z0-9]+$`. If it still fails, print:
 
 ```
 Usage: /forge:new <task-slug> [--source jira:KEY | linear:KEY | github:NUM]
-Slug must be lowercase letters, digits, and hyphens (e.g. add-user-notifications).
+Slug must match <letters>-<lowercase letters or digits> (e.g. task-123).
 ```
 
 Stop.

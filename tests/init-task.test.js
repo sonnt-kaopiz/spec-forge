@@ -52,10 +52,15 @@ describe('input validation', () => {
     assert.match(r.output, /task-slug is required/);
   });
 
-  it('exits with error when slug has uppercase letters', () => {
-    const r = run(['Add-Feature', workspace]);
+  it('exits with error when manual mode has no short description', () => {
+    const r = run(['--manual', '', workspace]);
     assert.strictEqual(r.status, 1);
-    assert.match(r.output, /lowercase/);
+    assert.match(r.output, /manual slug generation requires a short description/);
+  });
+
+  it('accepts uppercase letters in the prefix segment', () => {
+    const r = run(['Add-feature', workspace]);
+    assert.strictEqual(r.status, 0);
   });
 
   it('exits with error when slug starts with a hyphen', () => {
@@ -78,13 +83,18 @@ describe('input validation', () => {
     assert.strictEqual(r.status, 1);
   });
 
-  it('accepts a single-character slug', () => {
-    const r = run(['a', workspace]);
-    assert.strictEqual(r.status, 0);
+  it('exits with error when suffix contains uppercase letters', () => {
+    const r = run(['task-ABC', workspace]);
+    assert.strictEqual(r.status, 1);
   });
 
-  it('accepts a slug with digits', () => {
-    const r = run(['fix-bug-42', workspace]);
+  it('exits with error when slug has no hyphen separator', () => {
+    const r = run(['a', workspace]);
+    assert.strictEqual(r.status, 1);
+  });
+
+  it('accepts a slug with digits in the suffix', () => {
+    const r = run(['fix-42', workspace]);
     assert.strictEqual(r.status, 0);
   });
 });
@@ -122,6 +132,15 @@ describe('directory structure', () => {
     const r = run(['new-feature', workspace]);
     assert.strictEqual(r.status, 0);
     assertDirExists(path.join(tasksDir(workspace), 'SF-001-new-feature', 'logs'));
+  });
+
+  it('creates a generated manual slug directory', () => {
+    const r = run(['--manual', 'Add notifications', workspace]);
+    assert.strictEqual(r.status, 0);
+
+    const match = r.output.match(/Task directory: (.+SF-001-(sf-[a-z0-9]{6}addnotifications))/);
+    assert.ok(match, `Expected generated manual slug in output.\nActual output:\n${r.output}`);
+    assertDirExists(match[1]);
   });
 });
 
@@ -220,6 +239,31 @@ describe('placeholder substitution', () => {
   });
 });
 
+describe('manual slug generation', () => {
+  it('uses the task prefix and a random suffix in generated manual slugs', () => {
+    const r = run(['--manual', 'Add notifications', workspace]);
+    assert.strictEqual(r.status, 0);
+    assert.match(r.output, /Slug : sf-[a-z0-9]{6}addnotifications/);
+  });
+
+  it('sanitizes manual descriptions before generating the slug', () => {
+    const r = run(['--manual', 'Add_notifications!!! now', workspace]);
+    assert.strictEqual(r.status, 0);
+    assert.match(r.output, /Slug : sf-[a-z0-9]{6}addnotificationsnow/);
+  });
+
+  it('writes the generated manual slug into state.yaml', () => {
+    const r = run(['--manual', 'Add notifications', workspace]);
+    assert.strictEqual(r.status, 0);
+
+    const match = r.output.match(/Slug : (sf-[a-z0-9]{6}addnotifications)/);
+    assert.ok(match, `Expected generated slug in output.\nActual output:\n${r.output}`);
+
+    const taskDir = path.join(tasksDir(workspace), `SF-001-${match[1]}`);
+    assertFileContains(path.join(taskDir, 'state.yaml'), `slug: "${match[1]}"`);
+  });
+});
+
 // ---------------------------------------------------------------------------
 // Auto-increment task ID
 // ---------------------------------------------------------------------------
@@ -248,9 +292,9 @@ describe('auto-increment task ID', () => {
   });
 
   it('task IDs are zero-padded to three digits', () => {
-    const r = run(['padded', workspace]);
+    const r = run(['pad-1', workspace]);
     assert.strictEqual(r.status, 0);
-    assertDirExists(path.join(tasksDir(workspace), 'SF-001-padded'));
+    assertDirExists(path.join(tasksDir(workspace), 'SF-001-pad-1'));
   });
 });
 
