@@ -42,6 +42,7 @@ function install(targetDir, { force } = {}) {
     }
   }
 
+
   console.log(`Installing spec-forge ${VERSION} into ${targetDir}...`);
 
   // Runtime support files → .claude/.spec-forge/
