@@ -17,7 +17,7 @@ Don't interrogate. Collaborate. Don't follow a script. Follow the thread.
 
 ## The Goal
 
-By the end of questioning, you need enough clarity to write a PROJECT.md that downstream phases can act on:
+By the end of questioning, you need enough clarity to write a spec.md that downstream phases can act on:
 
 - **Research** needs: what domain to research, what the user already knows, what unknowns exist
 - **Requirements** needs: clear enough vision to scope v1 features
@@ -25,7 +25,7 @@ By the end of questioning, you need enough clarity to write a PROJECT.md that do
 - **plan-phase** needs: specific requirements to break into tasks, context for implementation choices
 - **execute-phase** needs: success criteria to verify against, the "why" behind requirements
 
-A vague PROJECT.md forces every downstream phase to guess. The cost compounds.
+A vague spec.md forces every downstream phase to guess. The cost compounds.
 
 ## How to Question
 

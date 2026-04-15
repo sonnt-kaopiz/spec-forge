@@ -1,6 +1,6 @@
 ---
 name: forge:new
-description: Create a new spec-forge task and walk it through discovery, spec, research, architecture, and planning
+description: Create a new spec-forge task and walk it through questioning, spec, research, requirements, and planning
 argument-hint: <task-slug>
 allowed_tools: Read, Bash, Write, Task, AskUserQuestion
 ---
@@ -12,23 +12,22 @@ allowed_tools: Read, Bash, Write, Task, AskUserQuestion
 Bootstrap a brand-new spec-forge task and drive it through every pre-implementation phase in one command:
 
 **Phases driven (in order):**
-`discovery` → `spec` → `codebase-research` → `external-research` → `architecture` → `planning` → `phase-execution`
+`questioning` → `spec` → `research` (optional) → `requirements` → `planning` → `phase-execution`
 
 **Files created under `<workspace_root>/.ai-workflow/tasks/<slug>/`:**
 
 | File | Created by |
 |---|---|
 | `state.yaml` | `init-task.js` (seeded from template) |
-| `spec.md` | `spec-generation` skill |
-| `research.md` | `codebase-research` skill |
-| `external-research.md` | `external-research` skill |
-| `architecture.md` | `solution-architect` agent |
-| `plan.md` | `phase-planner` agent |
-| `phases/<NN>/CONTEXT.md` | `phase-planner` agent (one per phase) |
+| `spec.md` | Step 6 (synthesized from questioning) |
+| `research-summary.md` | Step 7 (optional; 4 parallel researcher agents + synthesizer) |
+| `requirements.md` | Step 8 (scoped feature table) |
+| `plan.md` | Step 9 `phase-planner` agent |
+| `phases/<NN>/CONTEXT.md` | Step 9 `phase-planner` agent (one per phase) |
 
-**Developer approval gates:** spec (Step 9), architecture (Step 16), plan (Step 18).
+**Developer decision points:** research opt-in (Step 7), feature scoping (Step 8), plan review (Step 9).
 
-**What runs next:** The command stops at the start of Phase 1's discussion step. The developer continues with `/forge:next` (advance steps/phases) and `/forge:verify` (run verification after implementation).
+**What runs next:** The command prints a finish banner and suggests `/forge:next`. The developer drives implementation with `/forge:next` (advance steps/phases) and `/forge:verify` (run verification after implementation).
 
 The orchestrator updates `state.yaml` at every status transition using `scripts/update-state.js`. Skills and agents never touch `state.yaml` directly.
 
@@ -64,8 +63,7 @@ When `task_slug` was given:
    Usage: /forge:new <task-slug>
    Slug must match <letters>-<lowercase letters or digits> (e.g. task-123).
    ```
-2. Set `source = configured_source` (the raw value from forge.yaml, e.g. `"jira"` or `"manual"`).  
-   No issue key is asked here — Step 5 will handle fetching content via the paste prompt.
+2. Set `source = configured_source` (the raw value from forge.yaml, e.g. `"jira"` or `"manual"`). No tracker issue fetching occurs — task input is gathered through questioning in Step 5.
 
 #### 1d — Slug was NOT provided → auto-generate slug, ask for issue key if needed
 
@@ -141,347 +139,257 @@ Hold the parsed object as `state`.
 
 ---
 
-### Step 5 — Fetch source content (if source is a tracker)
-
-Branch on the `source` value resolved in Step 1:
-
-- **`jira` / `linear`** (bare type, no key — set when slug was provided in Step 1c):  
-  Ask via `AskUserQuestion`: `"Enter the <Jira|Linear> issue key (e.g. PROJ-123):"` and update `source = "<type>:<key>"`.  
-  Then prompt the developer:
-  ```
-  Paste the <Jira|Linear> issue body for <KEY> in your next message.
-  ```
-  Treat the developer's next freeform reply as `source_input`.
-
-- **`jira:<KEY>` / `linear:<KEY>`** (key already known — set when slug was auto-generated in Step 1d):  
-  Spec-Forge has no credentials. Prompt the developer:
-  ```
-  Paste the <Jira|Linear> issue body for <KEY> in your next message.
-  ```
-  Treat the developer's next freeform reply as `source_input`.
-
-- **`github`** (bare type, no number — set when slug was provided in Step 1c):  
-  Ask via `AskUserQuestion`: `"Enter the GitHub issue number (e.g. 42):"` and update `source = "github:<num>"`.  
-  Then try `gh issue view <num> --json title,body --jq '.title + "\n\n" + .body'`. Capture stdout as `source_input` on success; on failure fall back to the paste prompt.
-
-- **`github:<NUM>`** (number already known — set when slug was auto-generated in Step 1d):  
-  Try `gh issue view <NUM> --json title,body --jq '.title + "\n\n" + .body'`. Capture stdout as `source_input` on success; on failure fall back to the paste prompt.
-
-- **`manual`** — skip `source_input` (set it to empty).
-
-Update `state.task.source`:
+### Step 5 — Deep Questioning
 
 ```
-node <plugin_root>/scripts/update-state.js "<task_dir>" task.source "<source>" "<workspace_root>"
+node <plugin_root>/scripts/update-state.js "<task_dir>" status questioning "<workspace_root>"
 ```
+
+Print the banner:
+
+```
+─── QUESTIONING ───
+```
+
+Open with a single freeform question — do not list sub-questions:
+
+```
+What do you want to build?
+```
+
+**Conversation rules:**
+
+- Follow threads from the response. Dig into whatever is exciting, vague, or implicit: motivations, success criteria, assumptions about users, existing constraints, and edge cases the developer hasn't mentioned.
+- Keep a mental context checklist — **what** is being built, **why** it matters, **who** uses it, what **"done"** looks like — but never recite the checklist aloud or interrogate it mechanically.
+- When a vague term surfaces (e.g. "scalable", "smart", "seamless"), ask what it means in this specific context.
+- Use `AskUserQuestion` to offer 2–4 concrete interpretations the developer can react to rather than asking open-ended clarifying questions. Never offer generic options like "Option A / Option B / Other".
+- Loop as needed. There is no fixed number of exchanges.
+- When enough clarity exists on all four checklist items, ask:
+
+```
+Ready to write spec.md?
+  1. Yes, create spec.md
+  2. Keep exploring
+```
+
+  - **1** → advance to Step 6.
+  - **2** → loop back and continue the conversation.
 
 ---
 
-### Step 6 — Discovery: capture the requirement
-
-Print:
-
-```
-─── Discovery ───
-Briefly describe the task in your own words in your next message.
-If the source content from Step 5 already covers it, reply with `skip`.
-```
-
-Treat the developer's next reply as `discovery_input`. If the reply is exactly `skip`, set `discovery_input` to empty.
-
-If both `source_input` and `discovery_input` are empty, refuse:
-```
-No input to draft from. Re-run /forge:new and provide a description or configure task_source in forge.yaml.
-```
-Stop. (The task directory already exists and is harmless — the developer can re-run.)
-
-Combine the inputs into `task_input`:
-- If both are present: `<source_input>\n\n---\n\nDeveloper notes:\n<discovery_input>`
-- Otherwise the non-empty one alone
-
----
-
-### Step 7 — Transition to spec status
+### Step 6 — Write spec.md
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status spec "<workspace_root>"
 ```
 
-Print: `Status: discovery → spec`.
+Print: `Status: questioning → spec`.
+
+**Gather existing architecture context:**
+
+Read all markdown files under `<workspace_root>/.ai-workflow/codebase/` (if the directory exists). Any capability, component, or constraint documented there is treated as a **Validated** requirement — it is already delivered and must be honoured, not re-invented.
+
+**Synthesize spec:**
+
+From everything learned in the questioning conversation plus validated capabilities, write `<task_dir>/spec.md`. The spec must capture:
+
+- **Goal** — what the feature/task achieves and why
+- **Validated requirements** — capabilities already present (sourced from codebase docs); mark each `[Validated]`
+- **New requirements** — net-new behaviour needed; mark each `[New]`
+- **Key decisions** — design choices surfaced during questioning (data model shape, API contract style, auth approach, etc.)
+- **Out of scope** — anything explicitly ruled out
+
+Write the file. Print the full contents to the developer and confirm:
+
+```
+spec.md written. Review above — does this capture what you want?
+  1. Yes, looks good
+  2. Revise (tell me what to change)
+```
+
+- **1** → advance to Step 7.
+- **2** → ask: `What needs to change?` Incorporate the feedback, re-write `spec.md`, and re-print. Loop until the developer confirms.
 
 ---
 
-### Step 8 — Generate the spec
+### Step 7 — Research Decision
 
-Invoke the `spec-generation` skill with:
+```
+node <plugin_root>/scripts/update-state.js "<task_dir>" status research "<workspace_root>"
+```
 
-- `task_input` ← from Step 6 (verbatim)
-- `task_id` ← `task_id`
-- `task_slug` ← `task_slug`
-- `source_hint` ← `source` if set, otherwise omit (skill auto-detects)
-- `existing_spec` ← omit (this is the first draft)
-- `mode_override` ← omit
+Print: `Status: spec → research`.
 
-The skill returns a single response containing two markdown documents separated by `---SPEC-END---`. Split on the marker.
+Ask via `AskUserQuestion`:
 
-Write the spec body to `<task_dir>/spec.md`. Hold the questions block as `clarifying_questions`.
+```
+Research the domain ecosystem before scoping features?
+
+Research spawns 4 parallel agents (stack, features, architecture, pitfalls)
+and synthesizes the results into research-summary.md. Recommended for unfamiliar
+domains or technology choices you haven't made yet.
+
+  1. Yes, run research (recommended)
+  2. No, skip to requirements
+```
+
+**If skip (2):** set `research_available = false`, advance to Step 8.
+
+**If research (1):**
+
+Spawn 4 researcher agents **in parallel**, each with the full content of `<task_dir>/spec.md` as context and a focused brief:
+
+| Agent | Focus brief |
+|---|---|
+| **stack-researcher** | What does the existing stack look like? What additions or changes are needed to support the new feature? |
+| **features-researcher** | What existing features are relevant? How does this type of feature typically work in production systems? |
+| **architecture-researcher** | What does the existing architecture look like? How does this type of feature typically integrate with systems like this one? |
+| **pitfalls-researcher** | What are the most common mistakes teams make when adding this kind of feature to an existing system? |
+
+Wait for all 4 to complete. Then spawn one **synthesizer agent** with all four reports as input. The synthesizer produces a single markdown document with sections: Stack Considerations, Feature Patterns, Architecture Integration, and Common Pitfalls. Write it to `<task_dir>/research-summary.md`.
+
+Set `research_available = true`. Print:
+
+```
+─── Research complete ───
+<full research-summary.md body>
+```
+
+Advance to Step 8.
 
 ---
 
-### Step 9 — GATE: spec approval
-
-Print to the developer:
+### Step 8 — Define Requirements
 
 ```
-─── Spec ready for review ───
-<full spec.md body>
-
-──── Clarifying Questions ────
-<clarifying_questions block>
+node <plugin_root>/scripts/update-state.js "<task_dir>" status requirements "<workspace_root>"
 ```
 
-Then prompt:
+Print: `Status: research → requirements`.
+
+**Extract inputs:**
+
+- From `<task_dir>/spec.md`: extract **core value proposition** and all requirements (validated + new).
+- If `research_available`: from `<task_dir>/research-summary.md`, extract feature categories and patterns observed.
+
+**Build feature table:**
+
+Organise all candidate features into categories. For each category, classify features as:
+
+- **Table stakes** — must exist for the feature to function at all; skipping one blocks release.
+- **Differentiators** — add real value but the feature ships without them.
+- **Research notes** — surfaced by research agents; may or may not belong in this milestone.
+
+Present the table to the developer. Then loop through each feature using `AskUserQuestion`:
 
 ```
-(a)pprove / (r)efine with answers / (s)top
+[Feature name] — <one-sentence description>
+Category: <Table stakes | Differentiator | Research note>
+
+Include in this milestone?
+  1. Yes — selected for this milestone
+  2. Not now — keep as future work (table stakes) / out of scope (differentiators)
 ```
 
-- **`a`** → continue to Step 10.
-- **`r`** → ask: `Provide answers or additional context in your next message:`. Treat the developer's next freeform reply as the refinement input. Re-invoke the `spec-generation` skill with `existing_spec=<current spec.md>` and `task_input=<the answers>` and `mode_override=refine`. Re-write `spec.md`. Loop back to the start of Step 9.
-- **`s`** → print: `Stopped at spec review. Run /forge:resume <task-id> when you are ready to continue.` Stop the command. The task is preserved on disk.
+Track decisions:
+- **Selected** → this milestone.
+- **Not now (table stakes)** → future milestone backlog.
+- **Not now (differentiator)** → out of scope.
 
-The developer may iterate on `r` as many times as needed.
-
----
-
-### Step 10 — Transition to codebase-research
+After all features are scoped, print the full summary:
 
 ```
-node <plugin_root>/scripts/update-state.js "<task_dir>" status codebase-research "<workspace_root>"
-```
+─── Requirements Summary ───
+Selected (this milestone):
+  - <feature list>
 
-Print: `Status: spec → codebase-research`.
+Future backlog:
+  - <feature list>
 
----
-
-### Step 11 — Run the codebase-research skill
-
-Determine `services[]` for the skill. Resolution order:
-
-1. If the developer has populated `state.services[]` already (e.g. by editing the task dir), use it. Each entry must include an absolute `root`. If `root` is missing, error: `state.services[] entries require absolute root paths.`
-2. Otherwise, scan `<workspace_root>/` immediate subdirectories for service signals (composer.json, Gemfile, package.json, pyproject.toml, go.mod, pom.xml, build.gradle*, Cargo.toml, *.csproj). Present the discovered list and ask the developer which services this task touches:
-   ```
-   Which services does this task touch? (comma-separated, or 'all'):
-     1. user-service
-     2. notification-service
-     3. api-gateway
-   ```
-   Map the answer to `{ name, root }` entries. Persist them to state:
-   ```
-   node <plugin_root>/scripts/update-state.js "<task_dir>" services '[{"name":"...","root":"...","status":"pending"}]' "<workspace_root>"
-   ```
-
-Decide `complexity`:
-- `complex` if more than one service is targeted, OR the spec mentions a database migration, schema change, or cross-service contract change.
-- `standard` otherwise.
-
-Invoke the `codebase-research` skill with:
-
-- `task_context` ← the full content of `<task_dir>/spec.md`
-- `services[]` ← the resolved list (`{ name, root }` for each)
-- `complexity` ← `standard` or `complex`
-
-The skill spawns 2–3 `codebase-researcher` agents in parallel and returns a merged markdown document. Write it to `<task_dir>/research.md`, overwriting the template.
-
----
-
-### Step 12 — Present research and transition
-
-Print:
-
-```
-─── Codebase research complete ───
-<full research.md body>
+Out of scope:
+  - <feature list>
 ```
 
 Ask:
-```
-(c)ontinue to external research / (r)e-run codebase research / (s)top
-```
-
-- **`c`** → continue.
-- **`r`** → re-invoke Step 11. Allow the developer to change `complexity` (offer `standard` / `complex`).
-- **`s`** → save and stop.
-
-Then transition:
 
 ```
-node <plugin_root>/scripts/update-state.js "<task_dir>" status external-research "<workspace_root>"
+Confirm and write requirements.md?
+  1. Yes
+  2. Adjust selections
 ```
 
-Print: `Status: codebase-research → external-research`.
+- **2** → re-run the scoping loop for any features the developer wants to change.
+- **1** → write `<task_dir>/requirements.md` with the full scoped table and advance to Step 9.
 
 ---
 
-### Step 13 — Run the external-research skill
-
-Build the `stacks[]` input following the rules in `/forge:research` Step 4 (read each service's `forge-service.yaml`, fall back to plugin profile, fall back to manifest detection). Drop entries with no resolvable language/framework and warn.
-
-Invoke the `external-research` skill with:
-
-- `task_context` ← the full content of `<task_dir>/spec.md`
-- `stacks[]` ← from the resolution above
-- `focus_topics` ← omit (the agent derives them)
-- `existing_research` ← omit (this is the first run)
-
-Write the returned markdown to `<task_dir>/external-research.md`, overwriting the template.
-
----
-
-### Step 14 — Present external research and transition
-
-Print:
-
-```
-─── External research complete ───
-<full external-research.md body>
-```
-
-Ask:
-```
-(c)ontinue to architecture / (r)e-run external research with a focus topic / (s)top
-```
-
-- **`c`** → continue.
-- **`r`** → ask: `Topic to focus on?` and re-invoke the skill with `focus_topics=[<topic>]` and `existing_research=<current external-research.md>`. Write the result and re-prompt.
-- **`s`** → save and stop.
-
-Then transition:
-
-```
-node <plugin_root>/scripts/update-state.js "<task_dir>" status architecture "<workspace_root>"
-```
-
-Print: `Status: external-research → architecture`.
-
----
-
-### Step 15 — Run the solution-architect agent (Opus)
-
-Read these files once and pass their full contents:
-
-- `spec` ← `<task_dir>/spec.md`
-- `research` ← `<task_dir>/research.md`
-- `external_research` ← `<task_dir>/external-research.md`
-- `services[]` ← `state.services[]` with `{ name, root, stack_profile }`. Resolve each `stack_profile` from `<service.root>/forge-service.yaml` or fall back to `<workspace_root>/.ai-workflow/forge.yaml`.
-
-Spawn one `solution-architect` agent with the inputs above. The agent runs on Opus per its frontmatter.
-
-The agent returns a single markdown document beginning with `# Architecture: <Task Title>`. Write it to `<task_dir>/architecture.md`, overwriting the template.
-
----
-
-### Step 16 — GATE: architecture approval
-
-Print:
-
-```
-─── Architecture ready for review ───
-<full architecture.md body>
-```
-
-Prompt:
-
-```
-(a)pprove / (r)evise with feedback / (s)top
-```
-
-- **`a`** → continue to Step 17.
-- **`r`** → ask: `What needs to change? Reply in your next message:`. Treat the developer's next freeform reply as the feedback. Append the developer's feedback to a refinement note and re-invoke the `solution-architect` agent with the same inputs PLUS a `feedback` parameter containing the new note (the agent prompt does not yet take this — pass it as part of `task_context` by appending `\n\nDeveloper feedback for revision: <note>` to the `spec` value before sending). Re-write `architecture.md`. Loop back to the start of Step 16.
-- **`s`** → save and stop.
-
----
-
-### Step 17 — Transition to planning and run phase-planner
+### Step 9 — Create Plan
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status planning "<workspace_root>"
 ```
 
-Print: `Status: architecture → planning`.
+Print: `Status: requirements → planning`.
 
-Spawn one `phase-planner` agent with:
+Read all output files from previous steps and pass their full contents to the `phase-planner` agent:
 
-- `architecture` ← `<task_dir>/architecture.md`
 - `spec` ← `<task_dir>/spec.md`
-- `research` ← `<task_dir>/research.md`
-- `services[]` ← `state.services[]` with `{ name, root, stack_profile }`
-- `existing_plan` ← omit (this is the first run)
+- `requirements` ← `<task_dir>/requirements.md`
+- `research` ← `<task_dir>/research-summary.md` (if `research_available`; omit otherwise)
 
-The agent returns a response containing:
+**Planner constraints passed to the agent:**
+
+- Every selected requirement must map to exactly one phase.
+- Each phase must have 2–5 concrete, measurable success criteria.
+- Phases must be sequenced so earlier phases do not depend on later ones.
+
+The agent returns a response in the standard format:
 
 1. The full `plan.md` body
 2. The marker line `---PLAN-END---`
 3. One `---CONTEXT-PHASE-N---` block per phase, each followed by the CONTEXT.md skeleton
 
-#### 17a — Persist plan and CONTEXT skeletons
+**Persist plan and CONTEXT skeletons:**
 
-1. Split the response on `---PLAN-END---`. Write the first part to `<task_dir>/plan.md`, overwriting the template.
+1. Split on `---PLAN-END---`. Write the first part to `<task_dir>/plan.md`.
 2. Split the remainder on `---CONTEXT-PHASE-` markers. For each block:
-   - Parse the phase number `N` from the marker.
+   - Parse phase number `N`.
    - `mkdir -p <task_dir>/phases/<NN>/` (two-digit padded).
-   - Write the block body to `<task_dir>/phases/<NN>/CONTEXT.md`, overwriting any existing file.
+   - Write the block body to `<task_dir>/phases/<NN>/CONTEXT.md`.
 
-#### 17b — Populate state.phases[]
+**Populate `state.phases[]`:**
 
-Parse the `Phase Overview` table from `plan.md`. For each row, build a phase entry:
+Parse the Phase Overview table from `plan.md`. For each row build:
 
 ```yaml
 id: <N>
 name: "<phase name>"
 status: pending
-service: "<service>"
 started_at: null
 completed_at: null
-verification:
-  test: null
-  analyze: null
-  format: null
-  review: null
 ```
 
-Persist the entire array in one call:
+Persist in one call:
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" phases '<json-array>' "<workspace_root>"
 ```
 
-If the planner returned an empty `Phase Overview` table, do not write `phases`. Print the planner's failure note (`**Plan cannot be produced.** ...`) and stop with status left at `planning`.
+If the planner returned an empty Phase Overview table, print the planner's failure note and stop with status left at `planning`.
 
----
-
-### Step 18 — GATE: plan approval
-
-Print:
+Print the full `plan.md` and ask:
 
 ```
-─── Plan ready for review ───
+─── Plan ready ───
 <full plan.md body>
+
+(a)pprove / (r)egenerate
 ```
 
-Prompt:
+- **`a`** → advance to Step 10.
+- **`r`** → re-run the planner (overwrite `plan.md`, CONTEXT skeletons, and `state.phases`). Re-print and re-prompt.
 
-```
-(a)pprove / (r)egenerate / (s)top
-```
-
-- **`a`** → continue to Step 19.
-- **`r`** → re-run Step 17 (re-invoke the planner; CONTEXT skeletons and `state.phases` are rewritten). Loop back to the start of Step 18.
-- **`s`** → save and stop. Print: `Plan saved unapproved. Run /forge:plan to review later, or /forge:plan --regenerate to retry.`
-
----
-
-### Step 19 — Transition to phase-execution
+Then transition:
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status phase-execution "<workspace_root>"
@@ -491,33 +399,27 @@ node <plugin_root>/scripts/update-state.js "<task_dir>" phases.0.status in-progr
 node <plugin_root>/scripts/update-state.js "<task_dir>" phases.0.started_at "<iso-now>" "<workspace_root>"
 ```
 
-Print: `Status: planning → phase-execution. Phase 1 step: discussion.`
-
 ---
 
-### Step 20 — Begin phase 1 discussion
+### Step 10 — Finish
 
-Read `<task_dir>/phases/01/CONTEXT.md` (created in Step 17a). Print it to the developer:
-
-```
-─── Phase 1: <phase name> ───
-<full CONTEXT.md body>
-```
-
-Then print the closing banner:
+Print the closing banner:
 
 ```
-✓ Task <task_id> initialized through planning.
+✓ Task <task_id> initialized.
 
-Phase 1 ready. The discussion step is yours — review the context, raise design questions,
-sketch the implementation approach with the assistant, then run /forge:next when you are
-ready to move to the planning step.
+Files written:
+  .ai-workflow/tasks/<slug>/spec.md
+  .ai-workflow/tasks/<slug>/requirements.md
+  .ai-workflow/tasks/<slug>/plan.md
+  .ai-workflow/tasks/<slug>/phases/01/CONTEXT.md   (+ one per phase)
 
-Useful commands:
-  /forge:status           — see the dashboard
-  /forge:plan             — view the full plan
-  /forge:verify           — when phase 1 implementation is complete
-  /forge:resume <slug>    — pick up after a session break
+Phase 1 is ready. Review the context in phases/01/CONTEXT.md, then run:
+
+  /forge:next       — begin phase 1 implementation
+  /forge:status     — see the task dashboard
+  /forge:plan       — view the full plan
+  /forge:resume <slug>  — pick up after a session break
 ```
 
 Stop the command. The developer drives subsequent phases with `/forge:next` and `/forge:verify`.
@@ -527,13 +429,14 @@ Stop the command. The developer drives subsequent phases with `/forge:next` and 
 ## Rules and Constraints
 
 - **One source of truth.** `state.yaml` is the only place workflow position is recorded; every transition runs through `update-state.js`.
-- **The orchestrator owns transitions.** Skills and agents never modify `state.yaml`. This command updates state at every gate and every phase transition.
-- **Approval gates are blocking.** At Steps 9, 16, and 18 the command stops until the developer answers. Stopping at any of those points leaves a recoverable task on disk — `/forge:resume` picks it up.
-- **Pass document contents verbatim.** Skills and agents need full context. Never summarise spec.md, research.md, external-research.md, or architecture.md before passing them.
-- **Skill calls are stateless.** Each skill returns markdown. The orchestrator persists it.
+- **The orchestrator owns transitions.** Skills and agents never modify `state.yaml`. This command updates state at every status change.
+- **Decision points are blocking.** At Steps 6 (spec confirm), 7 (research opt-in), 8 (feature scoping), and 9 (plan review) the command waits for the developer. Stopping at any point leaves a recoverable task on disk — `/forge:resume` picks it up.
+- **Pass document contents verbatim.** Agents need full context. Never summarise spec.md, requirements.md, or research-summary.md before passing them.
+- **Researcher and synthesizer agents are stateless.** Each returns markdown. The orchestrator persists it.
 - **Resolve `<plugin_root>` from this command file's location** (`commands/forge/new.md` → plugin root is two levels up). All script invocations use absolute paths.
-- **`init-task.js` is idempotent.** If the developer re-runs `/forge:new` with the same slug, the script reuses the existing task directory and template files. The orchestrator continues from `discovery` regardless.
-- **No phase implementation here.** This command stops at the start of phase 1's discussion step. Implementation is the developer's job.
+- **`init-task.js` is idempotent.** If the developer re-runs `/forge:new` with the same slug, the script reuses the existing task directory and template files. The orchestrator continues from `questioning` regardless.
+- **No phase implementation here.** This command stops after writing plan.md and printing the finish banner. Implementation is the developer's job.
+- **Validated requirements come from codebase docs.** Only files under `<workspace_root>/.ai-workflow/codebase/` are treated as validated — do not infer validation from source code alone.
 - **Self-contained.** Do not assume CLAUDE.md or other context is loaded.
 
 ---
@@ -542,7 +445,6 @@ Stop the command. The developer drives subsequent phases with `/forge:next` and 
 
 - **`init-task.js` fails** → print stderr and stop. The task directory may be partially created; the script is idempotent so a re-run is safe.
 - **`update-state.js` fails on any transition** → stop, print stderr, tell the developer to inspect `state.yaml` and re-run `/forge:resume <slug>`.
-- **A skill returns its failure document** (e.g. `Status: Cannot draft ...`, `**Research could not run:** ...`) → write the file so the developer can inspect it, surface the failure to the developer, and stop. Do not advance the status.
-- **An agent returns a failure document** (e.g. `**Architecture cannot be produced.** ...`, `**Plan cannot be produced.** ...`) → write the file but do not transition. Print the failure and stop. The developer can re-run `/forge:resume`.
-- **Developer chooses `s` at any gate** → save and stop. The task is preserved with whatever status was reached. `/forge:resume <slug>` picks up exactly where it stopped.
-- **Developer skips discovery input without providing another source of context** → handled in Step 6: refuse and stop.
+- **A researcher or synthesizer agent returns a failure** → surface the failure to the developer and offer to re-run. Do not advance the status until research succeeds or the developer explicitly skips.
+- **The planner returns an empty Phase Overview table** → write `plan.md` as-is, print the planner's failure note, and stop with status left at `planning`. The developer can re-run `/forge:resume <slug>` to retry planning.
+- **Developer stops at any decision point** → the task is preserved with whatever status was reached. `/forge:resume <slug>` picks up exactly where it stopped.
