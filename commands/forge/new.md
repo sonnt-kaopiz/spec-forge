@@ -95,8 +95,15 @@ Stop.
 
 ### Step 2 — Resolve workspace root
 
-1. If `forge-service.yaml` exists in the current working directory, read it and extract `workspace_root`. Use that value.
-2. Otherwise, use the current working directory as `workspace_root`.
+Resolve `workspace_root` via the script:
+
+```
+node <plugin_root>/scripts/resolve-workspace-root.js
+```
+
+The script prints a single JSON object to stdout. Parse it and hold:
+
+- `workspace_root` ← `result.workspace_root`
 
 Print: `Workspace root: <workspace_root>`.
 

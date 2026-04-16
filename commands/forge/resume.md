@@ -19,8 +19,15 @@ This command is mostly read-only. The only write is appending a new entry to `st
 
 ## Step 2 — Resolve Workspace Root
 
-1. If `forge-service.yaml` exists in the current working directory, read its `workspace_root` field.
-2. Otherwise use the current working directory as `workspace_root`.
+Resolve `workspace_root` via the script:
+
+```
+node <plugin_root>/scripts/resolve-workspace-root.js
+```
+
+The script prints a single JSON object to stdout. Parse it and hold:
+
+- `workspace_root` ← `result.workspace_root`
 
 Tasks live under `<workspace_root>/.ai-workflow/tasks/`.
 

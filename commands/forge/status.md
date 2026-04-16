@@ -11,10 +11,15 @@ Render a compact dashboard for a spec-forge task: overall status, services, phas
 
 ## Step 1 — Resolve Workspace Root
 
-Determine `workspace_root`:
+Resolve `workspace_root` via the script:
 
-1. If `forge-service.yaml` exists in the current working directory, read it and use its `workspace_root` field.
-2. Otherwise, use the current working directory as `workspace_root`.
+```
+node <plugin_root>/scripts/resolve-workspace-root.js
+```
+
+The script prints a single JSON object to stdout. Parse it and hold:
+
+- `workspace_root` ← `result.workspace_root`
 
 Tasks live under `<workspace_root>/.ai-workflow/tasks/`.
 

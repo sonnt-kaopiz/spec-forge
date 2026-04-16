@@ -29,11 +29,15 @@ Report to the user:
 
 ### 1b — Resolve Workspace Root
 
-Determine `workspace_root`:
+Resolve `workspace_root` via the script:
 
-1. Check if `forge-service.yaml` exists in the current working directory.
-   - If yes: read it and extract the `workspace_root` field. Use that value as `workspace_root`.
-   - If no: use the current working directory as `workspace_root`.
+```
+node <plugin_root>/scripts/resolve-workspace-root.js
+```
+
+The script prints a single JSON object to stdout. Parse it and hold:
+
+- `workspace_root` ← `result.workspace_root`
 
 Report to the user: `Workspace root: <workspace_root>`
 

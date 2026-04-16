@@ -20,9 +20,15 @@ Split `$ARGUMENTS` on whitespace. Extract:
 
 ## Step 2 — Resolve Workspace Root and Task
 
-1. Resolve `workspace_root`:
-   - If `forge-service.yaml` exists in the current working directory, read its `workspace_root` field.
-   - Otherwise use the current working directory.
+1. Resolve `workspace_root` via the script:
+
+   ```
+   node <plugin_root>/scripts/resolve-workspace-root.js
+   ```
+
+   The script prints a single JSON object to stdout. Parse it and hold:
+
+   - `workspace_root` ← `result.workspace_root`
 2. Resolve the target task using the same rules as `/forge:status`:
    - If `task_arg` is set, pass it to `node <plugin_root>/scripts/read-state.js "<task_arg>" "<workspace_root>"`.
    - Otherwise, list `<workspace_root>/.ai-workflow/tasks/`, prefer the single active task, and surface a menu when there are several.

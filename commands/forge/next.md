@@ -34,9 +34,15 @@ Split `$ARGUMENTS`. Extract:
 
 ## Step 2 — Resolve Workspace Root and Task
 
-1. Resolve `workspace_root`:
-   - If `forge-service.yaml` exists in cwd, read its `workspace_root` field.
-   - Otherwise use cwd.
+1. Resolve `workspace_root` via the script:
+
+   ```
+   node <plugin_root>/scripts/resolve-workspace-root.js
+   ```
+
+   The script prints a single JSON object to stdout. Parse it and hold:
+
+   - `workspace_root` ← `result.workspace_root`
 2. Resolve the target task using the same selection logic as `/forge:status` (single active task by default; menu if many; explicit slug/id if `task_arg` is set).
 3. Hold the parsed `state` object and the absolute `task_dir`.
 
