@@ -1,0 +1,104 @@
+{
+  "skill_name": "chat-session-journaler",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here is a simulated session to journal:\n\n---\nUser: I'm getting a 500 error on POST /api/orders when the cart is empty. Here's the stack trace: TypeError: Cannot read properties of undefined (reading 'items') at OrderService.create (order.service.ts:42)\n\nAssistant: [Reads order.service.ts, finds line 42, identifies missing null check before accessing cart.items, edits file to add guard clause, runs tests with `npm test`, tests pass]\n\nUser: Perfect, thanks. Can you also add a proper 400 response instead of letting it 500?\n\nAssistant: [Reads route handler, adds validation middleware that returns 400 with 'Cart is empty' message before reaching service layer, runs tests again, all pass]\n---\n\nwrite journal",
+      "expected_output": "A structured markdown journal with all 5 sections: Overview, Timeline of Interaction, Decisions & Reasoning Summary, Actions & Tools Used, Final Outputs. The journal should capture: the bug fix task, the two-step approach (fix + improve error response), tools used (Read, Edit, Bash for tests), and final outcome.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "has_all_required_sections",
+          "text": "The journal contains all five required sections: Overview, Timeline of Interaction, Decisions & Reasoning Summary, Actions & Tools Used, and Final Outputs",
+          "type": "llm"
+        },
+        {
+          "name": "timeline_uses_turn_format",
+          "text": "The Timeline section uses [Turn N] prefix format for entries",
+          "type": "llm"
+        },
+        {
+          "name": "actions_lists_tools_used",
+          "text": "The Actions & Tools Used section lists specific tools (e.g., Read, Edit, Bash) with their purpose",
+          "type": "llm"
+        },
+        {
+          "name": "no_verbatim_chain_of_thought",
+          "text": "The journal does not reproduce raw internal reasoning verbatim — reasoning is summarized/abstracted, not dumped as a log",
+          "type": "llm"
+        },
+        {
+          "name": "overview_is_concise",
+          "text": "The Overview section is 2-4 sentences, not a bullet list or multi-paragraph block",
+          "type": "llm"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Here is a simulated session to journal:\n\n---\nUser: I want to build a CLI tool that converts markdown files to PDF. What's the best approach for a Node.js project?\n\nAssistant: [Searches npm for markdown-to-pdf options, compares puppeteer-based vs wkhtmltopdf vs pandoc approaches, recommends md-to-pdf package for simplicity, explains tradeoffs]\n\nUser: Let's go with md-to-pdf. Can you scaffold the project?\n\nAssistant: [Creates package.json, installs md-to-pdf, writes src/index.js with CLI arg parsing, adds a README with usage examples]\n\nUser: One more thing — add support for a --watch flag that auto-converts on file change\n\nAssistant: [Adds chokidar dependency, extends CLI to accept --watch flag, wraps conversion in a file watcher loop, tests manually]\n---\n\nwrite journal",
+      "expected_output": "A structured journal capturing: initial research phase, decision to use md-to-pdf with rationale, scaffolding actions, and the watch feature addition. Should list tools used (WebSearch or equivalent, Write, Bash) and note the decision point around choosing a library.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "has_all_required_sections",
+          "text": "The journal contains all five required sections: Overview, Timeline of Interaction, Decisions & Reasoning Summary, Actions & Tools Used, and Final Outputs",
+          "type": "llm"
+        },
+        {
+          "name": "decisions_section_captures_library_choice",
+          "text": "The Decisions & Reasoning Summary section mentions the library/approach selection decision with some rationale",
+          "type": "llm"
+        },
+        {
+          "name": "final_outputs_are_specific",
+          "text": "The Final Outputs section names specific deliverables (e.g., files created, features added) rather than giving only a vague summary",
+          "type": "llm"
+        },
+        {
+          "name": "no_verbatim_chain_of_thought",
+          "text": "The journal does not reproduce raw internal reasoning verbatim — reasoning is summarized/abstracted",
+          "type": "llm"
+        },
+        {
+          "name": "reasonable_length",
+          "text": "The journal is between 150 and 600 words — concise but complete",
+          "type": "llm"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here is a simulated session to journal:\n\n---\nUser: /forge:new\n\nAssistant: [Invokes questioning skill to gather requirements, asks 4 discovery questions about service type, tech stack, integration points, and success criteria]\n\nUser: It's a Python FastAPI microservice for handling user notifications (email + push). Postgres for storage. Needs to integrate with SendGrid and Firebase. Success = notifications delivered within 2 seconds p95.\n\nAssistant: [Invokes external-research skill to look up SendGrid and Firebase SDK docs, then spec-generation skill to draft a spec, writes PROJECT.md with architecture overview and API contracts, writes state.yaml with task breakdown]\n\nUser: Looks good but remove the SMS channel, we're not doing that.\n\nAssistant: [Reads PROJECT.md and state.yaml, removes all SMS references from both files, confirms changes]\n---\n\nwrite journal",
+      "expected_output": "A journal that captures the forge:new workflow: questioning phase, user requirements input, research + spec generation, and the revision to remove SMS. Should show the sequence of skills invoked (questioning, external-research, spec-generation) and the final outputs (PROJECT.md, state.yaml).",
+      "files": [],
+      "assertions": [
+        {
+          "name": "has_all_required_sections",
+          "text": "The journal contains all five required sections: Overview, Timeline of Interaction, Decisions & Reasoning Summary, Actions & Tools Used, and Final Outputs",
+          "type": "llm"
+        },
+        {
+          "name": "actions_lists_skills_invoked",
+          "text": "The Actions & Tools Used section lists the skills invoked during the session (questioning, external-research, spec-generation or similar)",
+          "type": "llm"
+        },
+        {
+          "name": "timeline_shows_revision",
+          "text": "The Timeline captures the revision step (removing SMS) as a distinct turn",
+          "type": "llm"
+        },
+        {
+          "name": "final_outputs_mentions_files",
+          "text": "The Final Outputs section mentions the specific files produced (PROJECT.md and state.yaml or equivalent)",
+          "type": "llm"
+        },
+        {
+          "name": "no_verbatim_chain_of_thought",
+          "text": "The journal does not reproduce raw internal reasoning verbatim — reasoning is summarized/abstracted",
+          "type": "llm"
+        }
+      ]
+    }
+  ]
+}
