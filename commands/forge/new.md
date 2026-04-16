@@ -19,13 +19,13 @@ Bootstrap a brand-new spec-forge task and drive it through every pre-implementat
 | File | Created by |
 |---|---|
 | `state.yaml` | `init-task.js` (seeded from template) |
-| `spec.md` | Step 6 (synthesized from questioning) |
-| `research-summary.md` | Step 7 (optional; 4 parallel researcher agents + synthesizer) |
-| `requirements.md` | Step 8 (scoped feature table) |
-| `plan.md` | Step 9 `phase-planner` agent |
-| `phases/<NN>/CONTEXT.md` | Step 9 `phase-planner` agent (one per phase) |
+| `spec.md` | Step 5 (synthesized from questioning) |
+| `research-summary.md` | Step 6 (optional; 4 parallel researcher agents + synthesizer) |
+| `requirements.md` | Step 7 (scoped feature table) |
+| `plan.md` | Step 8 `phase-planner` agent |
+| `phases/<NN>/CONTEXT.md` | Step 8 `phase-planner` agent (one per phase) |
 
-**Developer decision points:** research opt-in (Step 7), feature scoping (Step 8), plan review (Step 9).
+**Developer decision points:** research opt-in (Step 6), feature scoping (Step 7), plan review (Step 8).
 
 **What runs next:** The command prints a finish banner and suggests `/forge:next`. The developer drives implementation with `/forge:next` (advance steps/phases) and `/forge:verify` (run verification after implementation).
 
@@ -35,104 +35,58 @@ The orchestrator updates `state.yaml` at every status transition using `scripts/
 
 ## Process
 
-### Step 1 — Parse `$ARGUMENTS` and resolve source
-
-#### 1a — Parse arguments
+### Step 1 — Parse `$ARGUMENTS`
 
 Split `$ARGUMENTS`. Extract:
 
-- `task_slug` — the first positional token (if present).
+- `task_slug` — the first positional token (if present; may be omitted).
 
 No flags are accepted. If any unrecognised flag is present (e.g. `--source`), warn the user and stop:
 
 ```
 The --source flag is no longer supported. Configure the task source in forge.yaml (task_source field).
-Usage: /forge:new <task-slug>
+Usage: /forge:new [<task-slug>]
 ```
 
-#### 1b — Read global task_source
-
-Read `task_source` from `<plugin_root>/forge.yaml` (top-level key `task_source`). Hold it as `configured_source`. Supported values: `manual`, `jira`, `linear`, `github`. If the key is missing, default to `manual`.
-
-#### 1c — Slug was provided → use global config source, no questions
-
-When `task_slug` was given:
-
-1. Validate against `^[a-zA-Z]+-[a-z0-9]+$`. If invalid, print usage and stop:
-   ```
-   Usage: /forge:new <task-slug>
-   Slug must match <letters>-<lowercase letters or digits> (e.g. task-123).
-   ```
-2. Set `source = configured_source` (the raw value from forge.yaml, e.g. `"jira"` or `"manual"`). No tracker issue fetching occurs — task input is gathered through questioning in Step 5.
-
-#### 1d — Slug was NOT provided → auto-generate slug, ask for issue key if needed
-
-When no `task_slug` was given:
-
-1. **Auto-generate the slug**: read `task_prefix` from forge.yaml, lowercase it, generate a 6-character random string from `[a-z0-9]`, compose `<prefix>-<random6>` (e.g. `sf-x3k9mq`). Hold as `task_slug`.
-
-2. **Resolve source**:
-   - If `configured_source` is `manual`: set `source = "manual"`. No questions needed.
-   - If `configured_source` is a tracker (`jira`, `linear`, or `github`): ask one follow-up via `AskUserQuestion`:
-     ```
-     Question: "Enter the <Jira|Linear> issue key (e.g. PROJ-123):"   [for jira/linear]
-               "Enter the GitHub issue number (e.g. 42):"              [for github]
-     ```
-     Compose `source = "<type>:<key>"` (e.g. `jira:PROJ-123`, `github:42`).
-
-#### 1e — Final validation
-
-Validate the final `task_slug` against `^[a-zA-Z]+-[a-z0-9]+$`. If it still fails, print:
-
-```
-Usage: /forge:new <task-slug>
-Slug must match <letters>-<lowercase letters or digits> (e.g. task-123).
-```
-
-Stop.
+Hold `task_slug` (may be empty string / absent). Do not validate or auto-generate the slug here — the init script handles both cases.
 
 ---
 
-### Step 2 — Resolve workspace root
+### Step 2 — Initialise the task directory
 
-Resolve `workspace_root` via the script:
-
-```
-node <plugin_root>/scripts/resolve-workspace-root.js
-```
-
-The script prints a single JSON object to stdout. Parse it and hold:
-
-- `workspace_root` ← `result.workspace_root`
-
-Print: `Workspace root: <workspace_root>`.
-
----
-
-### Step 3 — Initialise the task directory
-
-Run `init-task.js` to scaffold the task. The script:
+Run `init-task.js` to scaffold the task. The script resolves the workspace root internally, creates the task directory, and populates it from templates:
 
 - Creates `<workspace_root>/.ai-workflow/tasks/<slug>/`
 - Populates the directory from `templates/` (`spec.md`, `research.md`, `external-research.md`, `architecture.md`, `plan.md`, `state.yaml`)
 - Creates `services/`, `phases/`, and `logs/` subdirectories
 
+**If `task_slug` was provided:**
+
 ```
-node <plugin_root>/scripts/init-task.js "<task_slug>" "<workspace_root>"
+node <plugin_root>/scripts/init-task.js "<task_slug>"
+```
+
+**If no `task_slug` was provided** (auto-generate):
+
+```
+node <plugin_root>/scripts/init-task.js
 ```
 
 The script writes a single JSON object to stdout. Parse it and hold:
 
 - `task_dir` ← `result.task_dir` — absolute path to the new task directory
-- `task_id` ← `result.task_id` — same value as `task_slug`
+- `task_id` ← `result.task_id`
 - `task_slug` ← `result.task_slug`
+- `workspace_root` ← `result.workspace_root`
 - `idempotent` ← `result.idempotent` — `true` if the directory already existed
+
+Print: `Workspace root: <workspace_root>`.
 
 If the script exits non-zero, surface its stderr and stop.
 
 ---
 
-### Step 4 — Initialise state.yaml
+### Step 3 — Initialise state.yaml
 
 The init script seeds `state.yaml` from the template with `status: discovery` and the task ID/slug filled in. No update is needed at this point — the template is the initial state.
 
@@ -146,7 +100,7 @@ Hold the parsed object as `state`.
 
 ---
 
-### Step 5 — Deep Questioning
+### Step 4 — Deep Questioning
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status questioning "<workspace_root>"
@@ -179,12 +133,12 @@ Ready to write spec.md?
   2. Keep exploring
 ```
 
-  - **1** → advance to Step 6.
+  - **1** → advance to Step 5.
   - **2** → loop back and continue the conversation.
 
 ---
 
-### Step 6 — Write spec.md
+### Step 5 — Write spec.md
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status spec "<workspace_root>"
@@ -214,12 +168,12 @@ spec.md written. Review above — does this capture what you want?
   2. Revise (tell me what to change)
 ```
 
-- **1** → advance to Step 7.
+- **1** → advance to Step 6.
 - **2** → ask: `What needs to change?` Incorporate the feedback, re-write `spec.md`, and re-print. Loop until the developer confirms.
 
 ---
 
-### Step 7 — Research Decision
+### Step 6 — Research Decision
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status research "<workspace_root>"
@@ -240,7 +194,7 @@ domains or technology choices you haven't made yet.
   2. No, skip to requirements
 ```
 
-**If skip (2):** set `research_available = false`, advance to Step 8.
+**If skip (2):** set `research_available = false`, advance to Step 7.
 
 **If research (1):**
 
@@ -262,11 +216,11 @@ Set `research_available = true`. Print:
 <full research-summary.md body>
 ```
 
-Advance to Step 8.
+Advance to Step 7.
 
 ---
 
-### Step 8 — Define Requirements
+### Step 7 — Define Requirements
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status requirements "<workspace_root>"
@@ -326,11 +280,11 @@ Confirm and write requirements.md?
 ```
 
 - **2** → re-run the scoping loop for any features the developer wants to change.
-- **1** → write `<task_dir>/requirements.md` with the full scoped table and advance to Step 9.
+- **1** → write `<task_dir>/requirements.md` with the full scoped table and advance to Step 8.
 
 ---
 
-### Step 9 — Create Plan
+### Step 8 — Create Plan
 
 ```
 node <plugin_root>/scripts/update-state.js "<task_dir>" status planning "<workspace_root>"
@@ -393,7 +347,7 @@ Print the full `plan.md` and ask:
 (a)pprove / (r)egenerate
 ```
 
-- **`a`** → advance to Step 10.
+- **`a`** → advance to Step 9.
 - **`r`** → re-run the planner (overwrite `plan.md`, CONTEXT skeletons, and `state.phases`). Re-print and re-prompt.
 
 Then transition:
@@ -408,7 +362,7 @@ node <plugin_root>/scripts/update-state.js "<task_dir>" phases.0.started_at "<is
 
 ---
 
-### Step 10 — Finish
+### Step 9 — Finish
 
 Print the closing banner:
 
@@ -437,7 +391,7 @@ Stop the command. The developer drives subsequent phases with `/forge:next` and 
 
 - **One source of truth.** `state.yaml` is the only place workflow position is recorded; every transition runs through `update-state.js`.
 - **The orchestrator owns transitions.** Skills and agents never modify `state.yaml`. This command updates state at every status change.
-- **Decision points are blocking.** At Steps 6 (spec confirm), 7 (research opt-in), 8 (feature scoping), and 9 (plan review) the command waits for the developer. Stopping at any point leaves a recoverable task on disk — `/forge:resume` picks it up.
+- **Decision points are blocking.** At Steps 5 (spec confirm), 6 (research opt-in), 7 (feature scoping), and 8 (plan review) the command waits for the developer. Stopping at any point leaves a recoverable task on disk — `/forge:resume` picks it up.
 - **Pass document contents verbatim.** Agents need full context. Never summarise spec.md, requirements.md, or research-summary.md before passing them.
 - **Researcher and synthesizer agents are stateless.** Each returns markdown. The orchestrator persists it.
 - **Resolve `<plugin_root>` from this command file's location** (`commands/forge/new.md` → plugin root is two levels up). All script invocations use absolute paths.

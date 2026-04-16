@@ -2,13 +2,13 @@
 // init-task.js — Initialize a new task directory under <workspace_root>/.ai-workflow/tasks/
 //
 // Usage:
-//   node init-task.js <task-slug> [workspace_root]
-//   node init-task.js --manual "<short-description>" [workspace_root]
+//   node init-task.js <task-slug> [start_dir]
+//   node init-task.js --manual "<short-description>" [start_dir]
 //
 // Arguments:
 //   task-slug           Short kebab-case label (e.g. "add-user-notifications")
 //   --manual <desc>     Generate a slug as <task_prefix>-<random6><desc>
-//   workspace_root      Path to the service repo root. Defaults to process.cwd().
+//   start_dir           Directory used to resolve workspace root. Defaults to process.cwd().
 //
 // Behaviour:
 //   - Idempotent: safe to run multiple times; never overwrites existing files
@@ -22,6 +22,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 const { parseYaml } = require('./state-yaml');
 
 // ---------------------------------------------------------------------------
@@ -31,8 +32,8 @@ const args = process.argv.slice(2);
 
 function printUsage() {
   const cmd = path.basename(process.argv[1]);
-  process.stderr.write(`Usage: node ${cmd} <task-slug> [workspace_root]\n`);
-  process.stderr.write(`   or: node ${cmd} --manual "<short-description>" [workspace_root]\n`);
+  process.stderr.write(`Usage: node ${cmd} <task-slug> [start_dir]\n`);
+  process.stderr.write(`   or: node ${cmd} --manual "<short-description>" [start_dir]\n`);
 }
 
 function sanitizeDescription(value) {
@@ -51,16 +52,41 @@ function randomString(length) {
 }
 
 let slug = '';
-let workspaceRoot = process.cwd();
 let manualDescription = '';
+let startDir = process.cwd();
 
 if (args[0] === '--manual') {
   manualDescription = args[1] || '';
-  workspaceRoot = args[2] || process.cwd();
+  startDir = args[2] || process.cwd();
 } else {
   slug = args[0] || '';
-  workspaceRoot = args[1] || process.cwd();
+  startDir = args[1] || process.cwd();
 }
+
+function resolveWorkspaceRoot(startDirArg) {
+  const startDirAbs = path.resolve(process.cwd(), startDirArg || process.cwd());
+  const resolverPath = path.join(__dirname, 'resolve-workspace-root.js');
+
+  const stdout = execFileSync(process.execPath, [resolverPath, startDirAbs], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  let parsed;
+  try {
+    parsed = JSON.parse(stdout);
+  } catch (err) {
+    throw new Error(`Failed to parse resolve-workspace-root output as JSON: ${String(err && err.message ? err.message : err)}`);
+  }
+
+  if (!parsed || typeof parsed.workspace_root !== 'string' || parsed.workspace_root.trim().length === 0) {
+    throw new Error('resolve-workspace-root did not return workspace_root');
+  }
+
+  return parsed.workspace_root;
+}
+
+const workspaceRoot = resolveWorkspaceRoot(startDir);
 
 // ---------------------------------------------------------------------------
 // Paths
